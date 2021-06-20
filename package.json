@@ -1,0 +1,21 @@
+{
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview"
+  },
+  "devDependencies": {
+    "@auth0/auth0-spa-js": "^1.15.0",
+    "@sveltejs/vite-plugin-svelte": "^1.0.0-next.7",
+    "@zerodevx/svelte-toast": "^0.3.0",
+    "autoprefixer": "^10.2.6",
+    "axios": "^0.21.1",
+    "postcss": "^8.3.2",
+    "svelte": "^3.37.0",
+    "svelte-loading-spinners": "^0.1.5",
+    "svelte-spa-router": "^3.1.0",
+    "tailwindcss": "^2.0.4",
+    "vite": "^2.3.7"
+  }
+}
