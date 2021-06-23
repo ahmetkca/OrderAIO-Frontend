@@ -1,14 +1,11 @@
 <script>
 	import oauth2Service from '../../services/oauth2.service';
-	import {oauth2_user} from '../../stores/user.store';
+	import { oauth2_user, isAuthenticated } from '../../stores/user.store';
 
 	import {link, push} from 'svelte-spa-router';
-	import authService from '../../services/auth.service';
-	import { isAuthenticated, user, bearerToken } from '../../stores/user.store';
-	import { Jumper, Circle } from 'svelte-loading-spinners'
+	import { Circle } from 'svelte-loading-spinners'
 	import { toast } from '@zerodevx/svelte-toast';
-	import config from '../../helpers/config';
-	import axios from 'axios';
+
 
 	let username;
 	let password;
@@ -26,7 +23,7 @@
 						console.log(res);
 						oauth2_user.set(res.data.user)
 						isAuthenticated.set(true);
-						toast.push('Success!', {
+						toast.push('Successfully logged in!', {
 							theme: {
 								'--toastBackground': '#48BB78',
 								'--toastProgressBackground': '#2F855A'
@@ -39,7 +36,7 @@
 			.catch(err => {
 				console.log(err);
 				isSubmitting = false;
-				toast.push('Danger!', {
+				toast.push('Your username or password is incorrect', {
 					theme: {
 						'--toastBackground': '#F56565',
 						'--toastProgressBackground': '#C53030'

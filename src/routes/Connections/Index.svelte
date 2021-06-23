@@ -1,29 +1,36 @@
 
 <script>
 	import {onMount} from 'svelte';
-	import etsyConnectionsService from '../../services/etsyConnections.service';
+	// import etsyConnectionsService from '../../services/etsyConnections.service';
 	import ConnectedEtsyShop from './components/ConnectedEtsyShop.svelte';
+	import { etsyConnections } from "../../stores/etsyConnection.store";
 
 	let connections = [];
 
     onMount(async () => {
+    	if (Object.keys($etsyConnections).length === 0) {
+    		console.log("reloading etsy connections...")
+    		await etsyConnections.reload();
+		}
+		connections = Object.values($etsyConnections)
+		console.trace(connections);
+		
         // here call all connections (etsy, ebay, amazon etc.)
-		await etsyConnectionsService.get_all_etsy_connections()
-			.then(res => {
-				console.log(res);
-				console.log(res.status);
-				if (res.status == 200) {
-					connections = res.data
-				} else {
-					console.log(res.data.detail);
-				}
-				console.log(typeof res);
-				console.log(Object.entries(res));
-				// connections = res.data
-				console.log(typeof connections);
-			}).catch(err => {
-				console.log(err);
-			})
+		// await etsyConnectionsService.get_all_etsy_connections()
+		// 	.then(res => {
+		// 		if (res.status === 200) {
+		// 			connections = res.data
+		// 			connections.forEach(async el => {
+		// 				await etsyConnectionsService.searchTest(el._id)
+		// 					.then(res => {
+		// 						console.log(res);
+		// 					})
+		// 			})
+		//
+		// 		}
+		// 	}).catch(function (error) {
+		// 		console.error(error);
+		// 	})
     })
 </script>
 

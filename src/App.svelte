@@ -8,6 +8,7 @@
     import { isAuthenticated } from "./stores/user.store";
     import { SvelteToast } from '@zerodevx/svelte-toast';
 
+
     onMount(async () => {
         await oauth2Service.authMe()
             .then(res => {

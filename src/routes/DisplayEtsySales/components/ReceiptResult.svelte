@@ -6,6 +6,8 @@
 	export let sellerShopIcon;
 	export let sellerShopName;
 
+	import { slide } from 'svelte/transition';
+
 	let cssStyle = `background-image: url('${sellerShopIcon}')`
 
 	let isSelected = false;
@@ -18,7 +20,7 @@
 	}
 </script>
 
-<label for={receiptId}
+<label transition:slide for={receiptId}
 	class={isSelected ? 'flex flex-wrap max-w-md mx-auto overflow-hidden bg-white rounded-lg shadow-lg dark:bg-gray-800 mb-2 ring ring-offset-purple-600' : 'flex flex-wrap max-w-md mx-auto overflow-hidden bg-white rounded-lg shadow-lg dark:bg-gray-800 mb-2'}>
 <!-- <div class="flex flex-wrap max-w-md mx-auto overflow-hidden bg-white rounded-lg shadow-lg dark:bg-gray-800 mb-2"> -->
 	<input id={receiptId} type=radio bind:group value={value} name="receipt-group" hidden/>

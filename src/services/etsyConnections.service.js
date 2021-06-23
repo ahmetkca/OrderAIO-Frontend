@@ -1,12 +1,16 @@
 import config from '../helpers/config';
-import axios from 'axios';
-import {bearerToken} from '../stores/user.store';
-import {get} from 'svelte/store';
+// import axios from 'axios';
+
+const axios = config.myAxios;
 
 export default {
+	/**
+	 * @param {String} app_key
+	 * @param {String} app_secret
+	 */
 	async getRequestToken(app_key, app_secret) {
 		console.log(`${app_key}, ${app_secret}`);
-		return await axios.post(`${config.BACKEND_URI}/connect/etsy`, {
+		return await axios.post(`/connect/etsy`, {
 			app_key: app_key,
 			app_secret: app_secret
 		}, {
@@ -28,7 +32,7 @@ export default {
 	 * @param {String} etsyConnectionId
 	 */
 	async getImagesOfTransaction(listing_id, listing_image_id, etsyConnectionId) {
-		return await axios.get(`${config.BACKEND_URI}/images/${listing_id}/${listing_image_id}/${etsyConnectionId}`,{
+		return await axios.get(`/images/${listing_id}/${listing_image_id}/${etsyConnectionId}`,{
 			headers: {
 				"content-type": "application/json",
 				// "Authorization": `Bearer ${get(bearerToken)}`
@@ -40,8 +44,11 @@ export default {
 		})
 	},
 
+	/**
+	 * @param {String} etsyConnectionId
+	 */
 	async getAllReceipts(etsyConnectionId) {
-		return await axios.get(`${config.BACKEND_URI}/receipts/${etsyConnectionId}`,{
+		return await axios.get(`/receipts/${etsyConnectionId}`,{
 			headers: {
 				"content-type": "application/json",
 				// "Authorization": `Bearer ${get(bearerToken)}`,
@@ -59,13 +66,8 @@ export default {
 	 * @param {String} etsyConnectionId
 	 */
 	async getAllTransactionsByReceiptId(receiptId, etsyConnectionId,) {
-		return await axios.get(`${config.BACKEND_URI}/transactions/${receiptId}/${etsyConnectionId}`, {
-			headers: {
-				"content-type": "application/json",
-				// "Authorization": `Bearer ${get(bearerToken)}`
-			},
-			withCredentials: true
-		}).then(res => {
+		return await axios.get(`/transactions/${receiptId}/${etsyConnectionId}`)
+		.then(res => {
 			return res;
 		}).catch(err => {
 			return err
@@ -73,27 +75,29 @@ export default {
 	},
 
 	async get_all_etsy_connections() {
-		return await axios.get(`${config.BACKEND_URI}/connections/etsy`,{
-			headers: {
-				"content-type": "application/json",
-				// "Authorization": `Bearer ${get(bearerToken)}`
-			},
-			withCredentials: true
-		}).then(res => {
+		return await axios.get(`/connections/etsy`)
+			.then(res => {
+				return res;
+			}).catch(err => {
+				return err
+			})
+	},
+
+	async searchTest(etsy_connection_id) {
+		return await axios.get(`/search/${etsy_connection_id}`)
+		.then(res => {
 			return res;
 		}).catch(err => {
 			return err
 		})
 	},
 
+	/**
+	 * @param {String} id
+	 */
 	async getEtsyConnection(id) {
-		return await axios.get(`${config.BACKEND_URI}/connection/etsy/${id}`, {
-			headers: {
-				"content-type": "application/json",
-				// "Authorization": `Bearer ${get(bearerToken)}`
-			},
-			withCredentials: true
-		}).then(res => {
+		return await axios.get(`/connection/etsy/${id}`)
+		.then(res => {
 			return res;
 		}).catch(err => {
 			return err
@@ -106,15 +110,10 @@ export default {
 	 * @param {String} oauth_verifier
 	 */
 	async getAccessToken(id, oauth_token, oauth_verifier) {
-		return await axios.put(`${config.BACKEND_URI}/verify/etsy`, {
+		return await axios.put(`/verify/etsy`, {
 			oauth_verifier: oauth_verifier,
 			temp_oauth_token: oauth_token,
 			etsy_connection_id: id
-		}, {
-			headers: {
-				'content-type': 'application/json'
-			},
-			withCredentials: true
 		}).then(res => {
 			return res;
 		}).catch(err => {
