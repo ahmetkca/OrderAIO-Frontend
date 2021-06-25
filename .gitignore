@@ -2,3 +2,5 @@
 /dist/
 /.vscode/
 .DS_Store
+localhost.pem
+localhost-key.pem
