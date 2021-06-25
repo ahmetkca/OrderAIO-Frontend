@@ -1,7 +1,7 @@
 <script>
-    import { bearerToken, isAuthenticated, user} from '../../stores/user.store';
+    // import { bearerToken, isAuthenticated, user} from '../../stores/user.store';
     import { onMount } from 'svelte';
-    import etsyConnectionsService from '../../services/etsyConnections.service';
+    // import etsyConnectionsService from '../../services/etsyConnections.service';
 
     onMount(async () => {
         

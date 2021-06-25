@@ -5,11 +5,25 @@
 	import {link, push} from 'svelte-spa-router';
 	import { Circle } from 'svelte-loading-spinners'
 	import { toast } from '@zerodevx/svelte-toast';
+	import { querystring } from 'svelte-spa-router';
+	import { onMount } from 'svelte';
 
 
 	let username;
 	let password;
 	let isSubmitting = false;
+	const myParams = new URLSearchParams($querystring);
+
+	onMount(() => {
+		if (myParams.has("error")) {
+			toast.push(myParams.get("error"), {
+				theme: {
+					'--toastBackground': '#F89406',
+					'--toastProgressBackground': '#7C4A02'
+				}
+			});
+		}
+	})
 
 	const login = async () => {
 		if (username.length === 0 || password.length === 0) {

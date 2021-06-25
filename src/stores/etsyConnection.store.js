@@ -19,12 +19,13 @@ const reloadEtsyConnections = async () => {
         });
 }
 
-const createEtsyConnectionsStore = async () => {
-    const etsyConnections = await reloadEtsyConnections();
-    const { subscribe, set, update } = writable(etsyConnections);
+const createEtsyConnectionsStore = () => {
+    // const etsyConnections = await reloadEtsyConnections();
+    const { subscribe, set, update } = writable({});
 
     return {
         subscribe,
+        set,
         addConnection: (etsyConnectionId) => update(async etsyConnections => {
             const etsyConnection = await etsyConnectionsService.getEtsyConnection(etsyConnectionId)
                 .then(res => {
@@ -45,7 +46,8 @@ const createEtsyConnectionsStore = async () => {
         reset: () => set({})
     }
 }
-export const etsyConnections = await createEtsyConnectionsStore();
+const etsyConnections = createEtsyConnectionsStore();
+etsyConnections.set(await reloadEtsyConnections())
 
 
 const reloadReceiptsStore = async () => {
@@ -68,16 +70,20 @@ const reloadReceiptsStore = async () => {
     return receiptsByShopNames;
 }
 
-const createReceiptsStore = async () => {
-    console.trace(get(etsyConnections));
-    const receiptsByShopNames = await reloadReceiptsStore();
-    const { subscribe, set, update } = writable(receiptsByShopNames);
+const createReceiptsStore = () => {
+    // console.trace(get(etsyConnections));
+    // const receiptsByShopNames = await reloadReceiptsStore();
+    const { subscribe, set, update } = writable({});
 
     return {
         subscribe,
+        set,
         update,
         reload: async () => set(await reloadReceiptsStore()),
         reset: () => set({})
     }
 }
-export const receiptsByShopNames = await createReceiptsStore();
+const receiptsByShopNames = createReceiptsStore();
+receiptsByShopNames.set(await reloadReceiptsStore());
+
+export {etsyConnections, receiptsByShopNames}
