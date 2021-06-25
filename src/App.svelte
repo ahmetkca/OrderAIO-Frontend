@@ -7,9 +7,12 @@
     import { publicRoutes, routes } from './routes/routes';
     import { isAuthenticated } from "./stores/user.store";
     import { SvelteToast } from '@zerodevx/svelte-toast';
+    import { etsyConnections, receiptsByShopNames } from "./stores/etsyConnection.store";
 
 
     onMount(async () => {
+        await etsyConnections.reload();
+        await receiptsByShopNames.reload();
         await oauth2Service.authMe()
             .then(res => {
                 oauth2_user.set(res.data.user)

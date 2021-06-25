@@ -47,7 +47,7 @@ const createEtsyConnectionsStore = () => {
     }
 }
 const etsyConnections = createEtsyConnectionsStore();
-etsyConnections.set(await reloadEtsyConnections())
+// etsyConnections.set(await reloadEtsyConnections())
 
 
 const reloadReceiptsStore = async () => {
@@ -84,6 +84,6 @@ const createReceiptsStore = () => {
     }
 }
 const receiptsByShopNames = createReceiptsStore();
-receiptsByShopNames.set(await reloadReceiptsStore());
+// receiptsByShopNames.set(await reloadReceiptsStore());
 
 export {etsyConnections, receiptsByShopNames}
