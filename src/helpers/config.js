@@ -2,7 +2,7 @@ import { oauth2_user, isAuthenticated } from '../stores/user.store';
 import { push } from 'svelte-spa-router';
 import { toast } from '@zerodevx/svelte-toast';
 import axios from 'axios';
-const BACKEND_URI = import.meta.env.DEV ? 'https://localhost:8000': 'https://backend.ahmetk.me';
+const BACKEND_URI = import.meta.env.DEV ? 'https://localhost:8000': 'https://api.orderaio.com';
 const myAxios = axios.create({
     baseURL: BACKEND_URI,
     // timeout: 2000,
@@ -10,7 +10,7 @@ const myAxios = axios.create({
     headers: {
         "content-type": "application/json",
         "Access-Control-Allow-Origin": BACKEND_URI
-    }
+    },
 });
 myAxios.interceptors.response.use(function (response) {
     return response;
