@@ -8,7 +8,8 @@ const myAxios = axios.create({
     // timeout: 2000,
     withCredentials: true,
     headers: {
-        "content-type": "application/json"
+        "content-type": "application/json",
+        "Access-Control-Allow-Origin": BACKEND_URI
     }
 });
 myAxios.interceptors.response.use(function (response) {
