@@ -2,7 +2,7 @@ import { oauth2_user, isAuthenticated } from '../stores/user.store';
 import { push } from 'svelte-spa-router';
 import { toast } from '@zerodevx/svelte-toast';
 import axios from 'axios';
-const BACKEND_URI = import.meta.env.DEV ? 'https://localhost:8000': 'https://orderaio-backend.herokuapp.com';
+const BACKEND_URI = import.meta.env.DEV ? 'https://localhost:8000': 'https://backend.ahmetk.me';
 const myAxios = axios.create({
     baseURL: BACKEND_URI,
     // timeout: 2000,

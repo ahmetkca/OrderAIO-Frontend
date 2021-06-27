@@ -13,7 +13,7 @@
     onMount(async () => {
         await etsyConnections.reload();
         await receiptsByShopNames.reload();
-        
+
         await oauth2Service.authMe()
             .then(res => {
                 oauth2_user.set(res.data.user)
