@@ -1,6 +1,6 @@
 import {writable} from "svelte/store";
 import dayjs from 'dayjs';
-import * as utc from 'dayjs/plugin/utc';
+import utc from 'dayjs/plugin/utc';
 dayjs.extend(utc);
 const today = new Date();
 today.setHours(0, -today.getTimezoneOffset(), 0, 0);
