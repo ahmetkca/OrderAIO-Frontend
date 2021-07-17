@@ -15,7 +15,9 @@
 	import Transaction from './Transaction.svelte';
 	import ReceiptNote from './ReceiptNote.svelte';
 	import { fade } from 'svelte/transition';
+	import {createEventDispatcher} from 'svelte';
 
+	const dispatch = createEventDispatcher();
 	let transactions = [];
 
 	onMount(async () => {
@@ -25,9 +27,10 @@
 			})
 		console.log(transactions)
 	})
+
 </script>
 
-<div class="w-full font-mono" transition:fade>
+<div class="w-full font-mono" in:fade>
 	<div class="flex w-full justify-between p-2 h-1/4 ">
 		<!-- TOP PART -->
 		<div class="w-1/3">

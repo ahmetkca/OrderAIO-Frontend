@@ -1,5 +1,8 @@
 <script>
-	import authService from '../../services/auth.service';
+	import oauth2Service from '../../services/oauth2.service';
+	import {toasts} from "../../stores/toast.store";
+	import Success from "../../components/Success.svelte";
+	import Danger from '../../components/Danger.svelte';
 
 	let email;
 
@@ -7,9 +10,19 @@
 		if (email.length === 0) {
 			return;
 		}
-		await authService.invite(email)
+		await oauth2Service.invite(email)
 			.then(res => {
-				console.log(res);
+				console.log(Object.entries(res));
+				if (res?.status === 200 && res?.statusText === "OK") {
+					toasts.push(Success, 3500, {message: `Email is successfully sent to ${res?.data?.email}`});
+				} else if (res?.response?.status === 400 && res?.response?.statusText === "Bad Request") {
+					toasts.push(Danger, 3500, {message: res?.response?.data?.detail});
+				}
+
+			})
+			.catch(err => {
+				console.log(err);
+				toasts.push(Danger, 3500, {message: err});
 			})
 
 	}
@@ -24,7 +37,7 @@
 				type="text"
 				class="block border border-gray-300 w-full p-3 rounded mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:ring-offset-2"
 				name="email"
-				placeholder="Username" />
+				placeholder="Email" />
 
 			<button
 				on:click|preventDefault={invite}

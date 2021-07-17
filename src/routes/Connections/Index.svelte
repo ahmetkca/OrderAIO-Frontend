@@ -35,7 +35,7 @@
 </script>
 
 <div class="container px-5 py-24 mx-auto">
-	<div class="flex flex-wrap -m-4">
+	<div class="p-10 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-5">
 		{#each connections as etsyConnection (etsyConnection._id)}
 			<!--{JSON.stringify(etsyConnection)}-->
 			<ConnectedEtsyShop
@@ -46,6 +46,17 @@
 			/>
 		{/each}
 	</div>
+<!--	<div class="flex flex-wrap -m-4">-->
+<!--		{#each connections as etsyConnection (etsyConnection._id)}-->
+<!--			&lt;!&ndash;{JSON.stringify(etsyConnection)}&ndash;&gt;-->
+<!--			<ConnectedEtsyShop-->
+<!--					shopName={etsyConnection.etsy_shop_name}-->
+<!--					etsyConnectionId={etsyConnection._id}-->
+<!--					shopPicUrl={etsyConnection.shop_icon_url}-->
+<!--					shopUrl={etsyConnection.shop_url}-->
+<!--			/>-->
+<!--		{/each}-->
+<!--	</div>-->
 <!--	Display all connections (Etsy, Ebay, Amazon and Shopify etc.)-->
 	<!--{JSON.stringify(connections)}-->
 </div>

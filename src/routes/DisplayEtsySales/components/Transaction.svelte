@@ -2,7 +2,7 @@
 	import {onMount} from 'svelte';
 	import etsyConnectionsService from '../../../services/etsyConnections.service';
 	import { Circle } from 'svelte-loading-spinners';
-	import { blur } from 'svelte/transition';
+	import { fade } from 'svelte/transition';
 
 	export let etsyConnectionId;
 	export let transaction = {};
@@ -35,7 +35,7 @@
 					<Circle size="48" color="#808080" unit="px" duration="1s"/>
 				</div>
 			{/if}
-			<img transition:blur bind:this={thisImg} class="w-48 h-48 mx-auto" class:loaded src={imageUrl} alt="{transaction.transaction_id}'s listing image"/>
+			<img in:fade bind:this={thisImg} class="w-48 h-48 mx-auto" class:loaded src={imageUrl} alt="{transaction.transaction_id}'s listing image"/>
 
 
 		</div>

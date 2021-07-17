@@ -2,22 +2,49 @@
     import {onMount} from 'svelte';
     import ReceiptResult from './components/ReceiptResult.svelte';
     import DisplayReceipt from './components/DisplayReceipt.svelte';
-    import { etsyConnections, receiptsByShopNames} from "../../stores/etsyConnection.store";
-    import { Circle } from 'svelte-loading-spinners'
+    import {
+        etsyConnections,
+        receiptsByShopNames,
+        isFetchingReceipts,
+        minCreated,
+        maxCreated,
+        receiptDateRange
+    } from "../../stores/etsyConnection.store";
+    import DatePicker from "@beyonk/svelte-datepicker/src/components/DatePicker.svelte";
+    import { Circle } from 'svelte-loading-spinners';
+    import * as dayjs from 'dayjs';
+    import { CalendarStyle } from '../../lib/calendar-style.js';
 
     let searchQuery = '';
     let results = [];
     let selectedReceipt = 0
-    let fetchingOrders = false;
+    // let fetchingOrders = false;
     let isSearching = false;
+    let selectedDate = {
+        from: '',
+        to: ''
+    };
+    // let startDate = dayjs().subtract(1, "week");
+    // let endDate = dayjs().add(1, "days");
+    let minStartDate = dayjs().subtract(2, "year");
+    let maxEndDate = dayjs().add(6, "days");
 
     onMount(async () => {
-        fetchingOrders = true
-        if (Object.keys($receiptsByShopNames).length === 0) {
+        // fetchingOrders = true
+        if (!$isFetchingReceipts) {
+            if (Object.keys($receiptsByShopNames).length === 0) {
+                console.log("Fetching orders...")
+                await receiptsByShopNames.reload();
+            }
+        }
+        // fetchingOrders = false;
+    })
+
+    const handleDateRange = async () => {
+        if (!$isFetchingReceipts) {
             await receiptsByShopNames.reload();
         }
-        fetchingOrders = false;
-    })
+    }
 
     const search = (searchQuery) => {
         isSearching = true;
@@ -33,8 +60,8 @@
             }
             Object.keys($receiptsByShopNames[shopName]).forEach(receipt_id => {
                 if (
-                    $receiptsByShopNames[shopName][receipt_id].name.toUpperCase() === searchQuery.toUpperCase() ||
-                    $receiptsByShopNames[shopName][receipt_id].name.toUpperCase().includes(searchQuery.toUpperCase())
+                    $receiptsByShopNames[shopName][receipt_id].name.toUpperCase() === searchQuery.toUpperCase()
+                    || $receiptsByShopNames[shopName][receipt_id].name.toUpperCase().includes(searchQuery.toUpperCase())
                 ) {
                     results = [...results, {
                         ...$receiptsByShopNames[shopName][receipt_id],
@@ -63,23 +90,42 @@
         selectedReceipt = 0
         results = []
     }
+    // console.log(startDate);
+    // console.log(endDate);
+    $: console.log(selectedDate);
 </script>
 
 <div class="container mx-auto p-5 items-center ">
-    {#if isSearching}
+    {#if $isFetchingReceipts}
         <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-            <Circle size="48" color="#808080" unit="px" duration="1s"/>
+            <Circle size="48" color="#7DF9FF" unit="px" duration="1s"/>
         </div>
     {/if}
     <div class="flex flex-col ">
 
         <div class=" p-2 w-full">
-            <input bind:value={searchQuery} type=text placeholder="Search Order number or Buyer's name"
-                   class="border rounded border-gray-400 p-2 w-1/2 focus:ring-2 ring-offset-1 ring-gray-200 outline-none
+
+            <input disabled={$isFetchingReceipts} bind:value={searchQuery} type=text placeholder="Search Order number or Buyer's name"
+                   class=" border rounded border-gray-400 p-2 w-1/2 focus:ring-2 ring-offset-1 ring-gray-200 outline-none
                         placeholder-opacity-80"/>
+            <DatePicker
+                    selected={[$minCreated, $maxCreated]}
+                    start={minStartDate}
+                    end={maxEndDate}
+                    range={true}
+                    on:range-selected={(e) => {
+                        console.trace(e.detail);
+                        minCreated.set(dayjs(e.detail.from));
+                        maxCreated.set(dayjs(e.detail.to));
+                    }}
+                    styling={new CalendarStyle()}>
+            </DatePicker>
+            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" on:click={handleDateRange}>
+                apply
+            </button>
         </div>
         <div class="flex flex-row mt-1 ">
-            <div class="p-2 overflow-y-auto w-1/4 ">
+            <div class="p-2 overflow-y-auto w-1/4 result-container">
                 {#each results as result, i (result.receipt_id)}
                     <ReceiptResult
                             bind:group={selectedReceipt}
@@ -94,7 +140,7 @@
             <div class="p-2 w-3/4 ml-1">
                 {#if results.length > 0}
                     {#key results[selectedReceipt].receipt_id}
-                        <DisplayReceipt 
+                        <DisplayReceipt
                             isGift={results[selectedReceipt].is_gift}
                             giftMessage={results[selectedReceipt].gift_message}
                             address={results[selectedReceipt].formatted_address}
@@ -113,3 +159,9 @@
 
     </div>
 </div>
+
+<style>
+    .result-container {
+        max-height: 780px;
+    }
+</style>

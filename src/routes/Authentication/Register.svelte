@@ -2,9 +2,12 @@
 	import {onMount} from 'svelte';
 	import {querystring} from 'svelte-spa-router';
 	import {link, push} from 'svelte-spa-router';
-	import authService from '../../services/auth.service';
+	import oauth2Service from '../../services/oauth2.service';
+	import {toasts} from "../../stores/toast.store";
+	import Success from "../../components/Success.svelte";
+	import Danger from '../../components/Danger.svelte';
 
-	var searchParams = new URLSearchParams($querystring);
+	let searchParams = new URLSearchParams($querystring);
 	let email;
 	let username;
 	let password;
@@ -23,10 +26,19 @@
 		if (email.length === 0 || username.length === 0 || password.length === 0 || verification_code.length === 0) {
 			return;
 		}
-		await authService.register(email, username, password, verification_code)
+		await oauth2Service.register(email, username, password, verification_code)
 			.then(res =>{ 
 				console.log(res)
+				if (res?.status === 200 && res?.statusText === "OK") {
+					toasts.push(Success, 3500, {message: `${username} has been successfully registered with email ${res?.data?.email}`});
+				} else if (res?.response?.status === 400 && res?.response?.statusText === "Bad Request") {
+					toasts.push(Danger, 3500, {message: res?.response?.data?.detail});
+				}
+
 				// push('/login')
+			})
+			.catch(err => {
+
 			})
 	}
 </script>

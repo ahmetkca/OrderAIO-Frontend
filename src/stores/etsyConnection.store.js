@@ -1,20 +1,36 @@
-import {get, writable} from 'svelte/store';
+import {get, writable, derived} from 'svelte/store';
 
 import etsyConnectionsService from '../services/etsyConnections.service';
+import * as dayjs from "dayjs";
 
 // export const currentEtsyConnectionId = writable(null);
+const isFetchingReceipts = writable(false);
+const isFetchingEtsyConnections = writable(false);
+
+const minCreated = writable(dayjs().subtract(1, "week"));
+const maxCreated = writable(dayjs().add(1, "days"));
+const receiptDateRange = derived( [minCreated, maxCreated], ([$minCreated, $maxCreated], set) => {
+    console.log($minCreated);
+    console.log($maxCreated);
+    console.log(typeof $minCreated);
+    set({"from": $minCreated.unix(), "to": $maxCreated.unix()})
+})
 
 const reloadEtsyConnections = async () => {
+
+    isFetchingEtsyConnections.set(true);
     return await etsyConnectionsService.get_all_etsy_connections()
         .then(res => {
             let etsyConnectionsByShopNames = {}
             for (let i = 0; i < res.data.length; i++) {
                 etsyConnectionsByShopNames[res.data[i].etsy_shop_name] = res.data[i];
             }
+            isFetchingEtsyConnections.set(false);
             return etsyConnectionsByShopNames;
         })
         .catch(err => {
             console.error(err);
+            isFetchingEtsyConnections.set(false);
             return {};
         });
 }
@@ -52,13 +68,17 @@ const etsyConnections = createEtsyConnectionsStore();
 
 const reloadReceiptsStore = async () => {
     if (Object.keys(get(etsyConnections)).length === 0) {
-        await etsyConnections.reload();
+        if (!get(isFetchingEtsyConnections)) {
+            await etsyConnections.reload();
+        }
     }
+    isFetchingReceipts.set(true);
     const receiptsByShopNames = {};
     for (const etsyConnection in get(etsyConnections)) {
         const etsy_shop_name = get(etsyConnections)[etsyConnection].etsy_shop_name;
         const _id = get(etsyConnections)[etsyConnection]._id;
-        await etsyConnectionsService.getAllReceipts(_id)
+        console.log(get(receiptDateRange));
+        await etsyConnectionsService.getAllReceipts(_id, get(receiptDateRange).from, get(receiptDateRange).to)
             .then(res => {
                 receiptsByShopNames[etsy_shop_name] = {};
                 const receipts = res.data.results;
@@ -67,6 +87,7 @@ const reloadReceiptsStore = async () => {
                 }
             })
     }
+    isFetchingReceipts.set(false);
     return receiptsByShopNames;
 }
 
@@ -86,4 +107,13 @@ const createReceiptsStore = () => {
 const receiptsByShopNames = createReceiptsStore();
 // receiptsByShopNames.set(await reloadReceiptsStore());
 
-export {etsyConnections, receiptsByShopNames}
+
+export {
+    etsyConnections,
+    receiptsByShopNames,
+    isFetchingReceipts,
+    isFetchingEtsyConnections,
+    minCreated,
+    maxCreated,
+    receiptDateRange
+}

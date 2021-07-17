@@ -4,7 +4,6 @@
     // import etsyConnectionsService from '../../services/etsyConnections.service';
 
     onMount(async () => {
-        
     })
 </script>
 

@@ -1,33 +1,62 @@
 <script>
-    import { onMount } from 'svelte';
+    import {onMount} from 'svelte';
     import oauth2Service from './services/oauth2.service';
-	import {oauth2_user} from './stores/user.store';
+    import {oauth2_user} from './stores/user.store';
     import Navbar from './components/Navbar.svelte';
-    import Router, { push } from 'svelte-spa-router';
-    import { publicRoutes, routes } from './routes/routes';
-    import { isAuthenticated } from "./stores/user.store";
-    import { SvelteToast } from '@zerodevx/svelte-toast';
-    import { etsyConnections, receiptsByShopNames } from "./stores/etsyConnection.store";
+    import Router, {push, location} from 'svelte-spa-router';
+    import {publicRoutes, routes} from './routes/routes';
+    import {isAuthenticated} from "./stores/user.store";
+    import {
+        etsyConnections,
+        receiptsByShopNames,
+        isFetchingEtsyConnections,
+        isFetchingReceipts
+    } from "./stores/etsyConnection.store";
+    import ToastContainer from "./components/ToastContainer.svelte";
 
 
     onMount(async () => {
-        await etsyConnections.reload();
-        await receiptsByShopNames.reload();
-
+        console.log($location);
         await oauth2Service.authMe()
             .then(res => {
-                oauth2_user.set(res.data.user)
-                isAuthenticated.set(true);
-                push('/connections')
+                // console.trace(Object.entries(res));
+                console.trace(res);
+                if (res?.response?.status === 403 || res?.response?.status === 401) {
+
+                    push(`/login?error=${res?.response?.data?.detail}`);
+                    return;
+                }
+                if (res?.data?.status === "ok" && res?.status === 200) {
+                    console.log(`App.svelte > onMount > authMe successful > ${res?.data?.user}`);
+                    oauth2_user.set(res?.data?.user)
+                    if ($oauth2_user?.user.length > 0 && $oauth2_user?.user_id.length > 0) {
+                        isAuthenticated.set(true);
+                    }
+                    if ($isAuthenticated) {
+                        push('/connections')
+                    }
+                }
+
             })
             .catch(err => {
-                push('/login')
+                console.trace(Object.entries(err));
+                push(`/login?error=${err}`)
             })
+        if ($isAuthenticated) {
+            // if (!$isFetchingEtsyConnections) {
+            //     await etsyConnections.reload();
+            // }
+            // if (!$isFetchingReceipts) {
+            //     await receiptsByShopNames.reload();
+            // }
+        }
+
     })
 
 </script>
 
-<SvelteToast/>
+
+<ToastContainer />
 <main class="min-h-screen max-h-screen font-mono">
     <Navbar />
     <Router routes={publicRoutes} />

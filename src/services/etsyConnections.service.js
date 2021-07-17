@@ -1,4 +1,5 @@
 import config from '../helpers/config';
+import * as dayjs from "dayjs";
 // import axios from 'axios';
 
 const axios = config.myAxios;
@@ -46,9 +47,17 @@ export default {
 
 	/**
 	 * @param {String} etsyConnectionId
+	 * @param min_created
+	 * @param max_created
 	 */
-	async getAllReceipts(etsyConnectionId) {
+	async getAllReceipts(etsyConnectionId,
+						 min_created = dayjs().subtract(1, "week").unix(),
+						 max_created = dayjs().add(1, "days").unix()) {
 		return await axios.get(`/receipts/${etsyConnectionId}`,{
+			params: {
+				min_created: min_created,
+				max_created: max_created
+			},
 			headers: {
 				"content-type": "application/json",
 				// "Authorization": `Bearer ${get(bearerToken)}`,
