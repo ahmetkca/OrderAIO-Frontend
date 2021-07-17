@@ -3,7 +3,7 @@
     import searchService from '../../services/search.service';
     import {orders} from "../../stores/orders.store";
     import {onMount} from 'svelte';
-    import * as dayjs from "dayjs";
+    import dayjs from "dayjs";
     import SelectedReceipt from "./components/SelectedReceipt.svelte";
     import DatePicker from "@beyonk/svelte-datepicker/src/components/DatePicker.svelte";
     import {etsyConnections} from "../../stores/etsyConnection.store";

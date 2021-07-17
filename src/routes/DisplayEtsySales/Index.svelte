@@ -12,7 +12,7 @@
     } from "../../stores/etsyConnection.store";
     import DatePicker from "@beyonk/svelte-datepicker/src/components/DatePicker.svelte";
     import { Circle } from 'svelte-loading-spinners';
-    import * as dayjs from 'dayjs';
+    import dayjs from 'dayjs';
     import { CalendarStyle } from '../../lib/calendar-style.js';
 
     let searchQuery = '';

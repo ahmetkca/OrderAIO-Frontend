@@ -1,5 +1,5 @@
 import {writable} from "svelte/store";
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import * as utc from 'dayjs/plugin/utc';
 dayjs.extend(utc);
 const today = new Date();

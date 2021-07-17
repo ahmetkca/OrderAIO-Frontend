@@ -1,5 +1,5 @@
 import config from '../helpers/config';
-import * as dayjs from "dayjs";
+import dayjs from "dayjs";
 // import axios from 'axios';
 
 const axios = config.myAxios;

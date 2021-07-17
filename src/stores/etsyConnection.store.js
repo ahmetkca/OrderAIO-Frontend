@@ -1,7 +1,7 @@
 import {get, writable, derived} from 'svelte/store';
 
 import etsyConnectionsService from '../services/etsyConnections.service';
-import * as dayjs from "dayjs";
+import dayjs from "dayjs";
 
 // export const currentEtsyConnectionId = writable(null);
 const isFetchingReceipts = writable(false);

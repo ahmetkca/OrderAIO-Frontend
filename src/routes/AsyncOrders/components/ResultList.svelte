@@ -3,7 +3,7 @@
     import VirtualList from "svelte-tiny-virtual-list";
     import {fade} from 'svelte/transition';
     import {etsyConnections} from "../../../stores/etsyConnection.store";
-    import * as dayjs from "dayjs";
+    import dayjs from "dayjs";
     import * as relativeTime from 'dayjs/plugin/relativeTime';
     dayjs.extend(relativeTime);
 
