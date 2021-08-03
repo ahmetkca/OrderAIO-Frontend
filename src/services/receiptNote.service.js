@@ -3,23 +3,30 @@ const axios = config.myAxios;
 
 
 export default {
-    async createNote(receiptId, note, status) {
-        return await axios.post(`/user/note`, {
-            receipt_id: receiptId,
-            note: note,
-            status: status
-        }).then(res => {
+    async createNote({receipt_id, note = null, status, assigned_to = null}) {
+        let receiptNote = Object.assign({},
+            {receipt_id},
+            note === null ? null : {note},
+            {status},
+            assigned_to === null ? null : {assigned_to},
+
+        );
+        console.trace(receiptNote);
+        return await axios.post(`/user/note`, receiptNote).then(res => {
             return res;
         }).catch(err => {
             return err
         })
     },
 
-    async updateNote(receiptId, note=  null, status = null) {
-        return await axios.put(`/user/note/${receiptId}`, {
-            note: note,
-            status: status
-        }).then(res => {
+    async updateNote({receipt_id, note=  null, status = null, assigned_to = null}) {
+        let updateReceiptNote = Object.assign({},
+            note === null ? null : {note},
+            status === null ? null : {status},
+            assigned_to === null ? null : {assigned_to},
+
+        );
+        return await axios.put(`/user/note/${receipt_id}`, updateReceiptNote).then(res => {
             return res;
         }).catch(err => {
             return err

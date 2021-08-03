@@ -13,6 +13,7 @@
     "axios": "^0.21.1",
     "dayjs": "^1.10.5",
     "postcss": "^8.3.2",
+    "print-js": "^1.6.0",
     "qs": "^6.10.1",
     "svelte": "^3.37.0",
     "svelte-loading-spinners": "^0.1.5",
