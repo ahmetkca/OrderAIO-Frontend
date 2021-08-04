@@ -18,8 +18,13 @@
                     if (res?.response?.status === 404 && res?.response?.statusText === "Not Found") {
                         toasts.push(Warning, 3500, {message: res?.response?.data?.detail});
                     } else if (res?.status === 200 && res?.statusText === "OK") {
-                        const myblob = new Blob([res?.data]);
-                        print(window.URL.createObjectURL(myblob));
+                        const myblob = new Blob([res?.data], {type: 'application/pdf'});
+                        print({
+                            printable: window.URL.createObjectURL(myblob),
+                            type: 'pdf',
+                            showModal: true,
+                            modalMessage: "Label Loading..."
+                        });
                         // labelPdf.href = window.URL.createObjectURL(myblob);
                         // labelPdf.download=`${receipt?.receipt_id}.pdf`
                         // labelIframe.src = "data:application/pdf;base64," + Base64.encode(window.URL.createObjectURL(myblob));
