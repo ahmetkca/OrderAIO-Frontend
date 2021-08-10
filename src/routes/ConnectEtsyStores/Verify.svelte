@@ -20,7 +20,7 @@
 			myParams.has("oauth_verifier") === false
 		) {
 			await push("/connections");
-			toasts.push(Warning, 3500, {message: "Something went wrong! Unable to connect to Etsy."});
+			toasts.push(Warning, 7500, {message: "Something went wrong! Unable to connect to Etsy."});
 			return;
 		}
 		
@@ -35,16 +35,16 @@
 			console.log(res)
 			sessionStorage.removeItem("currentEtsyConnectionId");
 			if (res?.status === 200 && res?.statusText === "OK") {
-			    toasts.push(Success, 3500, {message: res?.data?.detail});
+			    toasts.push(Success, 7500, {message: res?.data?.detail});
                 // push("/connections");
             } else if (res?.response?.status === 400 && res?.response?.statusText === "Bad Request") {
-                toasts.push(Danger, 3500, {message: res?.response?.data?.detail});
+                toasts.push(Danger, 7500, {message: res?.response?.data?.detail});
             }
 
 		})
         .catch(err => {
             console.error(err);
-            toasts.push(Danger, 3500, {message: err});
+            toasts.push(Danger, 7500, {message: err});
         })
         await push("/connections");
 	})

@@ -3,27 +3,34 @@
     import {toasts} from "../../../stores/toast.store";
     import Success from "../../../components/Success.svelte";
     import Danger from '../../../components/Danger.svelte';
+    import Info from '../../../components/Info.svelte'
     import Warning from '../../../components/Warning.svelte';
     import TransactionList from './TransactionList.svelte';
     import ReceiptNote from './ReceiptNote.svelte'
     import receiptLabelPrintService from '../../../services/receiptLabelPrint.service';
     import print from 'print-js';
 
+    let isLabelLoading = false;
+
 
 
     const getLabelPdf = async () => {
+        isLabelLoading = true;
+        toasts.push(Info, 3500, {message: "Label loading. Please wait..."});
         if (receipt?.receipt_id) {
             await receiptLabelPrintService.getLabelPdfByReceiptId(receipt?.receipt_id)
                 .then(res => {
                     if (res?.response?.status === 404 && res?.response?.statusText === "Not Found") {
-                        toasts.push(Warning, 3500, {message: res?.response?.data?.detail});
+                        toasts.push(Warning, 3500, {message: `No Label found for ${receipt?.receipt_id}.`});
                     } else if (res?.status === 200 && res?.statusText === "OK") {
+
                         const myblob = new Blob([res?.data], {type: 'application/pdf'});
                         print({
                             printable: window.URL.createObjectURL(myblob),
                             type: 'pdf',
                             showModal: true,
-                            modalMessage: "Label Loading..."
+                            modalMessage: "Label Loading...",
+                            // onLoadingStart: () => {toasts.push(Warning, 3500, {message: `No Label found for ${receipt?.receipt_id}.`});}
                         });
                         // labelPdf.href = window.URL.createObjectURL(myblob);
                         // labelPdf.download=`${receipt?.receipt_id}.pdf`
@@ -36,7 +43,7 @@
                     console.trace(res)
                 });
         }
-
+        isLabelLoading = false;
     }
 </script>
 <!--<embed-->
@@ -50,14 +57,18 @@
 
 <!--</iframe>-->
 {#if ((typeof receipt !== 'undefined') && Object.keys(receipt).length > 0)}
-    <div class="w-full font-mono">
+<!--    <div class="w-full font-mono p-1.5">-->
         <div class="flex w-full justify-between p-2 h-1/4 ">
             <!-- TOP PART -->
             <div class="w-1/3">
                 <div class="flex flex-row justify-between align-middle">
                     <p class="text-lg font-semibold">{receipt?.receipt_id}</p>
-                    <button on:click={getLabelPdf} class="focus:outline-none transition-colors bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 w-auto items-center rounded-lg mr-6">
-                        <span class="mr-2">Print</span><i class="fas fa-print"></i>
+                    <button disabled={isLabelLoading} on:click={getLabelPdf} class="focus:outline-none transition-colors bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 w-24 items-center rounded-lg mr-6">
+                        {#if isLabelLoading}
+                            <i class="fas fa-spinner fa-pulse"></i>
+                        {:else}
+                            <span class="mr-2">Print</span><i class="fas fa-print"></i>
+                        {/if}
                     </button>
 <!--                    <a bind:this={labelPdf} hidden></a>-->
                 </div>
@@ -89,11 +100,11 @@
                 <ReceiptNote receipt_id={receipt?.receipt_id}/>
             </div>
         </div>
-        <div class="w-full mt-2 max-h-96 h-3/4">
+        <div class="w-full h-3/4">
             <!-- TRANSACTIONS GO HERE -->
             <TransactionList transactions={receipt?.Transactions}/>
         </div>
-    </div>
+<!--    </div>-->
 {:else}
     <div class="flex items-center justify-center mt-64">
         <div class="mx-auto">

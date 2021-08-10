@@ -4,7 +4,7 @@
     import Transaction from './Transaction.svelte';
 </script>
 
-<div class="overflow-y-auto" style="max-height: 37.75rem;">
+<div class="overflow-y-auto mx-2" style="max-height: 37.25rem;">
     {#if transactions !== undefined}
         {#each transactions as transaction (transaction?.transaction_id)}
             <Transaction {transaction}/>

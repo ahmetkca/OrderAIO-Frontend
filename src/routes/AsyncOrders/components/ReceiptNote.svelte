@@ -2,9 +2,13 @@
     import {onMount} from 'svelte';
     import receiptNoteService from '../../../services/receiptNote.service';
     import usersService from '../../../services/users.service';
+    import {toasts} from "../../../stores/toast.store";
+    import Success from "../../../components/Success.svelte";
+    import Danger from '../../../components/Danger.svelte';
 
 
-    import { Pulse } from 'svelte-loading-spinners'
+    // import { Pulse } from 'svelte-loading-spinners'
+    import {orders} from "../../../stores/orders.store";
 
     export let receipt_id;
     let noteLoading = false;
@@ -33,9 +37,16 @@
                     console.log(res.data)
                     note = res?.data?.note;
                     status = res?.data?.status
+                    orders.update(orders => {
+                        const orderIndex = orders.findIndex(order => order.receipt_id === receipt_id);
+                        console.log(orderIndex);
+
+                        orders[orderIndex].status = status;
+                        return orders;
+                    })
                     assigned_to = res?.data?.assigned_to
                     created_by = res?.data?.created_by
-                    updated_by = res?.data?.updated_at
+                    updated_by = res?.data?.updated_by
                 })
         } else {
             console.log("CREATE")
@@ -48,6 +59,13 @@
                     console.log(res.data)
                     note = res?.data?.note;
                     status = res?.data?.status
+                    orders.update(orders => {
+                        const orderIndex = orders.findIndex(order => order.receipt_id === receipt_id);
+                        console.log(orderIndex);
+
+                        orders[orderIndex].status = status;
+                        return orders;
+                    })
                     assigned_to = res?.data?.assigned_to
                     created_by = res?.data?.created_by
                     updated_by = res?.data?.updated_at
@@ -66,7 +84,7 @@
         updated_by = undefined;
         await receiptNoteService.getNote(receiptId)
             .then(res => {
-                console.log(res);
+                // console.log(res);
                 if (res?.status === 200) {
                     doesExists = true;
                     note = res.data?.note;
@@ -77,7 +95,7 @@
                 } else if (res?.response?.status === 404) {
                     doesExists = false;
                 }
-                console.log(Object.entries(res));
+                // console.log(Object.entries(res));
                 noteLoading = false;
             })
             .catch(err => {
@@ -89,7 +107,7 @@
     $: {
         getReceiptNote(receipt_id)
             .then(res => {
-                console.trace(res)
+                // console.trace(res)
             })
     }
 </script>
@@ -124,15 +142,16 @@
         </div>
         <div class="flex flex-col space-y-1 items-end align-middle justify-between">
             {#if status === "COMPLETED"}
-                <p class="text-xs align-middle">Completed by {created_by}</p>
+                <p class="text-xs align-middle">Completed by {created_by || updated_by}</p>
             {:else if status === "UNCOMPLETED" || doesExists === false}
                 {#if (typeof created_by === "string" && created_by.length > 0)}
-                    <p class="text-xs align-middle">Seen by {created_by}</p>
+                    <p class="text-xs align-middle">Seen by {created_by || updated_by}</p>
                 {/if}
             {/if}
+            <!--{(typeof  updated_by)}-->
             {#if (typeof  updated_by === "string" && updated_by !== '') || updated_by !== undefined}
                 <!--{(typeof  updated_by === "string" && updated_by !== '')}-->
-                <p class="text-xs align-middle">Updated by {updated_by}</p>
+                <p class="text-xs align-middle">Last seen by {updated_by}</p>
             {/if}
         </div>
     </div>

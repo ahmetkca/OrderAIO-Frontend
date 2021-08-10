@@ -12,6 +12,10 @@
     import {filter} from "../../stores/filter.store";
     import { Circle } from 'svelte-loading-spinners';
     import SelectedReceiptSkeleton from './components/SelectedReceiptSkeleton.svelte';
+    import receiptNoteService from '../../services/receiptNote.service';
+
+    let key;
+    let keyCode;
 
     let searchData = "";
     let isSearching = false;
@@ -62,7 +66,20 @@
             ]
         })
             .then(res => {
+                // res.data.forEach(async (receipt, index) => {
+                //     await receiptNoteService.getNote(receipt.receipt_id)
+                //         .then(res => {
+                //             if (res?.status === 200) {
+                //                 receipt.status = res?.data?.status;
+                //                 // return {...el, 'status': res?.data?.status}
+                //             } else if (res?.response?.status === 404) {
+                //                 // return {...el, 'status': 'UNCOMPLETED'}
+                //                 receipt.status = 'UNCOMPLETED';
+                //             }
+                //         })
+                // })
                 orders.set(res.data);
+                // console.log(res.data);
             })
             .catch(err => {
                 console.error(err);
@@ -84,6 +101,12 @@
         await search({query: event.detail.query});
     }
 
+    const handleKeydown = (event) => {
+        key = event.key;
+        keyCode = event.keyCode;
+        console.log(`${key} : ${keyCode}`)
+    }
+
 </script>
 
 {#if isSearching}
@@ -96,6 +119,8 @@
       </span>
     </div>
 {/if}
+
+<svelte:window on:keydown={handleKeydown}/>
 
 <Modal bind:isOpen={isModalOpen} on:saveChanges={handleSaveChanges}>
     <div slot="body">
@@ -160,12 +185,11 @@
 <!--            <div class="p-2 overflow-y-auto">-->
             <ResultList
                     bind:searchData={searchData}
-                    data={$orders}
                     on:selectedReceipt={handleSelectedReceipt}
                     on:openModal={handleOpenModal}
                     on:notInCurrentData={handleNotInCurrentData}/>
 <!--            </div>-->
-            <div class="p-2 w-3/4 ml-1">
+            <div class="p-2 w-3/4 ml-1 bg-gray-50">
                 {#if isSearching}
                     <SelectedReceiptSkeleton />
                 {:else}

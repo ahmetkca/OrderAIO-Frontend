@@ -5,14 +5,19 @@
     import {etsyConnections} from "../../../stores/etsyConnection.store";
     import dayjs from "dayjs";
     import relativeTime from 'dayjs/plugin/relativeTime';
+    import {orders} from "../../../stores/orders.store";
+    import receiptNoteService from "../../../services/receiptNote.service";
+
+    // import receiptNoteService from '../../../services/receiptNote.service';
     dayjs.extend(relativeTime);
 
-    export let data = [];
+    // let $orders = $orders;
     const dispatch = createEventDispatcher();
     export let searchData = "";
     let filteredData = [];
+    let receiptsStatus = {}
     // $: {
-    //     filteredData = data.filter(receipt => receipt?.name.toLowerCase().indexOf(searchData.toLowerCase()) !== -1 || receipt?.receipt_id.toString().indexOf(searchData) !== -1);
+    //     filteredData = $orders.filter(receipt => receipt?.name.toLowerCase().indexOf(searchData.toLowerCase()) !== -1 || receipt?.receipt_id.toString().indexOf(searchData) !== -1);
     //     if (filteredData.length === 0) {
     //         console.log(`Make a request for ${searchData} to an API.`)
     //         if (searchData.length > 0) {
@@ -20,16 +25,30 @@
     //         }
     //     }
     // }
-    let group = data.length > 0 ? 0 : 0;
-    let value = data.length > 0 ? 0 : 0;
+    let group = $orders.length > 0 ? 0 : 0;
+    let value = $orders.length > 0 ? 0 : 0;
 
-    onMount(() => {
-        filteredData = data.filter(receipt => receipt?.name.toLowerCase().indexOf(searchData.toLowerCase()) !== -1 || receipt?.receipt_id.toString().indexOf(searchData) !== -1);
+    onMount(async () => {
+        filteredData = $orders.filter(receipt => receipt?.name.toLowerCase().indexOf(searchData.toLowerCase()) !== -1 || receipt?.receipt_id.toString().indexOf(searchData) !== -1);
+        await getReceiptStatus();
+        console.info(filteredData);
     })
-
-    $: filteredData = data.filter(receipt => receipt?.name.toLowerCase().indexOf(searchData.toLowerCase()) !== -1 || receipt?.receipt_id.toString().indexOf(searchData) !== -1);
+    // $: console.log($orders)
+    // $: $orders.forEach(async (receipt, index) => {
+    //     await receiptNoteService.getNote(receipt.receipt_id)
+    //         .then(res => {
+    //             if (res?.status === 200) {
+    //                 receipt.status = res?.data?.status;
+    //                 // return {...el, 'status': res?.data?.status}
+    //             } else if (res?.response?.status === 404) {
+    //                 // return {...el, 'status': 'UNCOMPLETED'}
+    //                 receipt.status = 'UNCOMPLETED';
+    //             }
+    //         })
+    // })
+    $: filteredData = $orders.filter(receipt => receipt?.name.toLowerCase().indexOf(searchData.toLowerCase()) !== -1 || receipt?.receipt_id.toString().indexOf(searchData) !== -1);
     const search = () => {
-        filteredData = data.filter(receipt => receipt?.name.toLowerCase().indexOf(searchData.toLowerCase()) !== -1 || receipt?.receipt_id.toString().indexOf(searchData) !== -1);
+        filteredData = $orders.filter(receipt => receipt?.name.toLowerCase().indexOf(searchData.toLowerCase()) !== -1 || receipt?.receipt_id.toString().indexOf(searchData) !== -1);
         if (filteredData.length === 0) {
             if (searchData.length > 0) {
                 console.log(`Make a request for ${searchData} to an API.`)
@@ -49,6 +68,40 @@
     $: dispatch("selectedReceipt", {
         receipt: filteredData[group]
     })
+
+    const getReceiptStatus = async () => {
+        setTimeout(async () => {
+            for (let i = 0; i < filteredData.length; i++) {
+                await receiptNoteService.getNote(filteredData[i].receipt_id)
+                    .then(res => {
+                        if (res?.status === 200) {
+                            filteredData[i].status = res?.data?.status;
+                            // receipt.status = res?.data?.status;
+                            // return {...el, 'status': res?.data?.status}
+                        } else if (res?.response?.status === 404) {
+                            filteredData[i].status = "UNCOMPLETED"
+                            // return {...el, 'status': 'UNCOMPLETED'}
+                            // receipt.status = 'UNCOMPLETED';
+                        }
+                    })
+            }
+        },250);
+
+    }
+    // const checkNoteStatus = async (receipt_id) => {
+    //     await receiptNoteService.getNote(receipt_id)
+    //         .then(res => {
+    //             if (res?.status === 200 && res?.statusText === "OK") {
+    //                 return res?.$orders?.status
+    //             } else if (res?.response?.status === 404) {
+    //                 throw new Error("Not Found 404");
+    //             }
+    //         })
+    //         .catch(err => {
+    //             console.error(err);
+    //             throw new Error("Something went wrong. Try again later.");
+    //         })
+    // }
 </script>
 
 <VirtualList
@@ -56,8 +109,9 @@
         height={800}
         itemCount={filteredData.length}
         itemSize={125}>
-    <div slot="header" class="px-1 mb-2 mx-1">
 
+    <div slot="header" class="px-1 mb-2 mx-1">
+        <!--{JSON.stringify(filteredData)}-->
         <div class="shadow flex border border">
             <input on:keypress={handleKeyPress} class="w-full rounded p-2 focus:outline-none" type="text" bind:value={searchData} placeholder="Search...">
             <button on:click={() => {searchData = ""}} class="focus:outline-none w-auto flex justify-end items-center text-gray-500 p-2 hover:text-gray-400">
@@ -72,10 +126,44 @@
         </div>
     </div>
     <div  slot="item" let:index let:style {style}>
-        <div in:fade class={group === index ? "border-2 border-blue-200 pt-2 pb-2 pr-2 card mx-2 mt-0 mb-1 whitespace-nowrap" : "border border-gray-200 pt-2 pb-2 pr-2 card mx-2 mt-0 mb-1 whitespace-nowrap"}>
-
+        <!--{filteredData[index]?.status}-->
+<!--        <span title="{JSON.stringify(filteredData)}">asdasd</span>-->
+        <div in:fade class={group === index ? "relative border-2 border-blue-300 pt-2 pb-2 pr-2 card mx-2 mt-0 mb-1 whitespace-nowrap bg-gray-50" : "bg-gray-50 border border-gray-200 pt-2 pb-2 pr-2 card mx-2 mt-0 mb-1 whitespace-nowrap"}>
+            {#if filteredData[index].status === undefined}
+                <div class="absolute -top-3 -left-1.5 w-4 h-4 animate-bounce opacity-75">
+                    <i class="fas fa-spinner fa-pulse"></i>
+                </div>
+            {:else if filteredData[index].status === "COMPLETED"}
+                <div class="absolute -top-3 -left-1.5 w-4 h-4 animate-bounce opacity-75">
+                    <i style="color: green; font-size: 24px;" class="fas fas fa-check"></i>
+                </div>
+            {:else}
+                <div class="absolute -top-3 -left-1.5 w-4 h-4 animate-bounce opacity-75">
+                    <i style="color: red; font-size: 24px;" class="fas fa-times"></i>
+                </div>
+            {/if}
+            <!--{#await checkNoteStatus(filteredData[index]?.receipt_id)}-->
+            <!--    <div class="absolute -top-2.5 -left-2 w-4 h-4 animate-bounce opacity-75">-->
+            <!--        <i class="fas fa-spinner fa-pulse"></i>-->
+            <!--    </div>-->
+            <!--{:then status}-->
+            <!--    {#if status === "COMPLETED" }-->
+            <!--        <div class="absolute -top-2.5 -left-2 w-4 h-4 animate-bounce opacity-75">-->
+            <!--            <i style="color: green; font-size: 24px;" class="fas fas fa-check"></i>-->
+            <!--        </div>-->
+            <!--    {:else if status === "UNCOMPLETED"}-->
+            <!--        <div class="absolute -top-2.5 -left-2 w-4 h-4 animate-bounce opacity-75">-->
+            <!--            <i style="color: red; font-size: 24px;" class="fas fa-times"></i>-->
+            <!--        </div>-->
+            <!--    {/if}-->
+            <!--{:catch error}-->
+            <!--    <div class="absolute -top-2.5 -left-2 w-4 h-4 animate-bounce opacity-75">-->
+            <!--        <i style="color: red; font-size: 24px;" class="fas fa-times"></i>-->
+            <!--    </div>-->
+            <!--{/await}-->
             <input id="toggle-{index}" type=radio bind:group value={index} class="hidden"/>
-            <label for="toggle-{index}" class="flex flex-col cursor-pointer select-none p-1" class:bg-blue-100={group === index} class:rounded={group === index}>
+
+            <label for="toggle-{index}" class={group === index ? 'rounded bg-blue-100 flex flex-col cursor-pointer select-none p-1' : 'flex flex-col cursor-pointer select-none p-1'}>
                 <span class='avatar ' style='background-image: url({$etsyConnections[filteredData[index]?.shop_name]?.shop_icon_url})'></span>
                 <h2 class="font-semibold mb-0.5">{filteredData[index]?.receipt_id}</h2>
                 <p class="text-base">{filteredData[index]?.name}</p>

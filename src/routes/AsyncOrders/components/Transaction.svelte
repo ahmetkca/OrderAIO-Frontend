@@ -18,7 +18,7 @@
 </script>
 
 <ImageModal imageSrc={transaction?.MainImage?.url_fullxfull} caption={transaction?.title} bind:isOpen={isFullImageOpen} />
-<div class="flex w-full font-mono mt-3 shadow-md rounded-md border border-gray-200 " >
+<div class="flex w-full font-mono mb-3 shadow rounded-md border border-gray-200 " >
     <div class=" w-1/3 p-1">
         <div>
             <img on:click={handleImageClick} in:blur class="w-48 h-48 object-left mx-auto" src={transaction?.MainImage?.url_170x135} alt="{transaction?.transaction_id}'s listing image"/>
