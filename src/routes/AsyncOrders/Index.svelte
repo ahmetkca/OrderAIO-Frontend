@@ -85,6 +85,7 @@
                 console.error(err);
             });
         isSearching = false;
+        await getReceiptStatus();
     }
 
     const handleSaveChanges = async () => {
@@ -95,6 +96,7 @@
         filter.update(f => {return {...f, "to_date": filterToDate}});
         searchData = "";
         await search($filter);
+
     }
 
     const handleNotInCurrentData = async (event) => {
@@ -107,6 +109,26 @@
         console.log(`${key} : ${keyCode}`)
     }
 
+    const getReceiptStatus = async () => {
+        console.log("GETTING RECEIPTS NOTES");
+        for (let i = 0; i < $orders.length; i++) {
+            await receiptNoteService.getNote( $orders[i].receipt_id)
+                .then(res => {
+                    if (res?.status === 200) {
+                        $orders[i].status = res?.data?.status;
+                        // receipt.status = res?.data?.status;
+                        // return {...el, 'status': res?.data?.status}
+                    } else if (res?.response?.status === 404) {
+                        $orders[i].status = "UNCOMPLETED"
+                        // return {...el, 'status': 'UNCOMPLETED'}
+                        // receipt.status = 'UNCOMPLETED';
+                    }
+                })
+        }
+        // setTimeout(async () => {
+        //
+        // },250);
+    }
 </script>
 
 {#if isSearching}

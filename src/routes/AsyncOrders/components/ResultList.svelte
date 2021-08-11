@@ -6,7 +6,7 @@
     import dayjs from "dayjs";
     import relativeTime from 'dayjs/plugin/relativeTime';
     import {orders} from "../../../stores/orders.store";
-    import receiptNoteService from "../../../services/receiptNote.service";
+    // import receiptNoteService from "../../../services/receiptNote.service";
 
     // import receiptNoteService from '../../../services/receiptNote.service';
     dayjs.extend(relativeTime);
@@ -15,7 +15,7 @@
     const dispatch = createEventDispatcher();
     export let searchData = "";
     let filteredData = [];
-    let receiptsStatus = {}
+    export let isSearching = false;
     // $: {
     //     filteredData = $orders.filter(receipt => receipt?.name.toLowerCase().indexOf(searchData.toLowerCase()) !== -1 || receipt?.receipt_id.toString().indexOf(searchData) !== -1);
     //     if (filteredData.length === 0) {
@@ -28,10 +28,12 @@
     let group = $orders.length > 0 ? 0 : 0;
     let value = $orders.length > 0 ? 0 : 0;
 
+    // $: isSearching,
+
     onMount(async () => {
         filteredData = $orders.filter(receipt => receipt?.name.toLowerCase().indexOf(searchData.toLowerCase()) !== -1 || receipt?.receipt_id.toString().indexOf(searchData) !== -1);
-        await getReceiptStatus();
-        console.info(filteredData);
+        // await getReceiptStatus();
+        // console.info(filteredData);
     })
     // $: console.log($orders)
     // $: $orders.forEach(async (receipt, index) => {
@@ -69,25 +71,27 @@
         receipt: filteredData[group]
     })
 
-    const getReceiptStatus = async () => {
-        setTimeout(async () => {
-            for (let i = 0; i < filteredData.length; i++) {
-                await receiptNoteService.getNote(filteredData[i].receipt_id)
-                    .then(res => {
-                        if (res?.status === 200) {
-                            filteredData[i].status = res?.data?.status;
-                            // receipt.status = res?.data?.status;
-                            // return {...el, 'status': res?.data?.status}
-                        } else if (res?.response?.status === 404) {
-                            filteredData[i].status = "UNCOMPLETED"
-                            // return {...el, 'status': 'UNCOMPLETED'}
-                            // receipt.status = 'UNCOMPLETED';
-                        }
-                    })
-            }
-        },250);
+    // const getReceiptStatus = async () => {
+    //     setTimeout(async () => {
+    //         for (let i = 0; i < $orders.length; i++) {
+    //             await receiptNoteService.getNote( $orders[i].receipt_id)
+    //                 .then(res => {
+    //                     if (res?.status === 200) {
+    //                         $orders[i].status = res?.data?.status;
+    //                         // receipt.status = res?.data?.status;
+    //                         // return {...el, 'status': res?.data?.status}
+    //                     } else if (res?.response?.status === 404) {
+    //                         $orders[i].status = "UNCOMPLETED"
+    //                         // return {...el, 'status': 'UNCOMPLETED'}
+    //                         // receipt.status = 'UNCOMPLETED';
+    //                     }
+    //                 })
+    //         }
+    //     },250);
+    //
+    // }
 
-    }
+
     // const checkNoteStatus = async (receipt_id) => {
     //     await receiptNoteService.getNote(receipt_id)
     //         .then(res => {

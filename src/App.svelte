@@ -27,7 +27,7 @@
                     return;
                 }
                 if (res?.data?.status === "ok" && res?.status === 200) {
-                    console.log(`App.svelte > onMount > authMe successful > ${res?.data?.user}`);
+                    console.log(`App.svelte > onMount > authMe successful > ${JSON.stringify(res?.data?.user)}`);
                     oauth2_user.set(res?.data?.user)
                     if ($oauth2_user?.user.length > 0 && $oauth2_user?.user_id.length > 0) {
                         isAuthenticated.set(true);

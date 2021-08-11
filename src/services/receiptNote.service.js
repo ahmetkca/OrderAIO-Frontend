@@ -11,7 +11,7 @@ export default {
             assigned_to === null ? null : {assigned_to},
 
         );
-        console.trace(receiptNote);
+        // console.trace(receiptNote);
         return await axios.post(`/user/note`, receiptNote).then(res => {
             return res;
         }).catch(err => {

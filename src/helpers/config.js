@@ -33,10 +33,10 @@ myAxios.interceptors.response.use(function (response) {
         //         '--toastProgressBackground': '#7C4A02'
         //     }
         // });
-        console.log(error);
-        console.error("401 ERROR your session is probably expired. OR Not Authorized.");
+        // console.log(error);
+        // console.error("401 ERROR your session is probably expired. OR Not Authorized.");
     } else {
-        console.trace(error);
+        // console.trace(error);
         return Promise.reject(error);
     }
 });
