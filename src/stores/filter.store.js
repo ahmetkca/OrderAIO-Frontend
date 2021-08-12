@@ -9,6 +9,6 @@ export const todayIsoFormat = dayjs(today).toISOString();
 export const filter = writable({
     from_date: todayIsoFormat,
     to_date: todayIsoFormat,
-    is_completed: false,
+    receipt_status: undefined,
     shop_name: undefined,
 })

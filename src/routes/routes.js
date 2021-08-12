@@ -7,6 +7,7 @@ import Login from './Authentication/Login.svelte';
 import Register from './Authentication/Register.svelte';
 import Invite from './Authentication/Invite.svelte';
 import AsyncOrders from './AsyncOrders/Index.svelte';
+import Assignments from './Assignments/Index.svelte';
 
 export const publicRoutes = {
     '/login': Login,
@@ -21,5 +22,6 @@ export const routes = {
     '/connect/etsy': ConnectEtsyShop,
     '/verify/etsy': VerifyEtsyShop,
     '/display/sales': DisplayEtsySales,
-    '/orders': AsyncOrders
+    '/orders': AsyncOrders,
+    '/assignments': Assignments
 }

@@ -7,7 +7,7 @@
     import Danger from '../../../components/Danger.svelte';
 
 
-    // import { Pulse } from 'svelte-loading-spinners'
+    import { Pulse } from 'svelte-loading-spinners';
     import {orders} from "../../../stores/orders.store";
 
     export let receipt_id;
@@ -26,6 +26,11 @@
             })
     })
     const updateOrCreateNote = async (statusx) => {
+        if (assigned_to !== 'nobody' && assigned_to !== null) {
+            console.log(assigned_to);
+            statusx = 'PROBLEM'
+        }
+        // console.log(assigned_to);
         if (doesExists) {
             console.log("UPDATE")
             await receiptNoteService.updateNote(Object.assign({},
@@ -96,6 +101,9 @@
                     doesExists = false;
                 }
                 // console.log(Object.entries(res));
+                // setTimeout(() => {
+                //
+                // }, 1000000)
                 noteLoading = false;
             })
             .catch(err => {
@@ -113,13 +121,21 @@
 </script>
 
 {#if noteLoading}
-<!--    <Pulse size="60" color="#FF3E00" unit="px" duration="1s"></Pulse>-->
+    <div class="flex flex-wrap items-center align-middle content-center h-1/2 w-1/2 px-auto mx-auto">
+        <div>
+            <Pulse size="48" color="#000000" unit="px" duration="1s"/>
+        </div>
+        <p>Receipt Note Loading...</p>
+    </div>
+<!--    -->
 {:else}
     <div class="w-full flex-none image-fit mr-1 relative">
         <textarea class="resize-none w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none" rows="2" bind:value={note}></textarea>
         <div class="absolute -top-2 -left-2 w-4 h-4 animate-bounce opacity-75">
             {#if status === "COMPLETED"}
                 <i style="color: green; font-size: 24px;" class="fas fas fa-check"></i>
+            {:else if status === "PROBLEM"}
+                <i style="color: #FF6405; font-size: 24px;" class="fas fa-exclamation-circle"></i>
             {:else if status === "UNCOMPLETED" || doesExists === false}
                 <i style="color: red; font-size: 24px;" class="fas fa-times"></i>
             {/if}

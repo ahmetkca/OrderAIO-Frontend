@@ -1,4 +1,5 @@
 <script>
+    import {push, querystring} from 'svelte-spa-router';
     import ResultList from './components/ResultList.svelte';
     import searchService from '../../services/search.service';
     import {orders} from "../../stores/orders.store";
@@ -13,6 +14,10 @@
     import { Circle } from 'svelte-loading-spinners';
     import SelectedReceiptSkeleton from './components/SelectedReceiptSkeleton.svelte';
     import receiptNoteService from '../../services/receiptNote.service';
+    import {toasts} from "../../stores/toast.store";
+    import Warning from "../../components/Warning.svelte";
+
+    let group = 0;
 
     let key;
     let keyCode;
@@ -22,13 +27,18 @@
     let receipt = {};
     let isModalOpen =  false;
 
-    let filterStatus = $filter?.is_completed;
+    let filterStatus = $filter?.receipt_status;
     let filterShop = $filter?.shop_name;
     let filterFromDate = $filter?.from_date;
     let filterToDate = $filter?.to_date;
 
     onMount(async () => {
-        await search($filter)
+        const myQuerystring = new URLSearchParams($querystring);
+        if (myQuerystring.has('query')) {
+            await search({query: myQuerystring.get('query')});
+        } else {
+            await search($filter)
+        }
     })
 
     $: console.log($filter);
@@ -42,6 +52,7 @@
     }
 
     const search = async (filter) => {
+        group = 0;
         isSearching = true;
         await searchService.search({
             ...filter,
@@ -91,7 +102,7 @@
     const handleSaveChanges = async () => {
         console.log("Save Changes");
         filter.update(f => {return {...f, "shop_name": filterShop}});
-        filter.update(f => {return {...f, "is_completed": filterStatus}});
+        filter.update(f => {return {...f, "receipt_status": filterStatus}});
         filter.update(f => {return {...f, "from_date": filterFromDate}});
         filter.update(f => {return {...f, "to_date": filterToDate}});
         searchData = "";
@@ -190,8 +201,9 @@
                 <div class="inline-block relative w-64">
                     <select bind:value={filterStatus} class="block appearance-none w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline" >
                         <option class="py-1" value={undefined}>All</option>
-                        <option class="py-1" value={true}>Completed</option>
-                        <option class="py-1" value={false}>Uncompleted</option>
+                        <option class="py-1" value="COMPLETED">Completed</option>
+                        <option class="py-1" value="UNCOMPLETED">Uncompleted</option>
+                        <option class="py-1" value="PROBLEM">Problem</option>
                     </select>
                     <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                         <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
@@ -201,17 +213,18 @@
         </form>
     </div>
 </Modal>
-<div class="container mx-auto p-5">
+<div class="container mx-auto px-5">
     <div class="flex flex-col ">
         <div class="flex flex-row ">
 <!--            <div class="p-2 overflow-y-auto">-->
             <ResultList
+                    bind:group={group}
                     bind:searchData={searchData}
                     on:selectedReceipt={handleSelectedReceipt}
                     on:openModal={handleOpenModal}
                     on:notInCurrentData={handleNotInCurrentData}/>
 <!--            </div>-->
-            <div class="p-2 w-3/4 ml-1 bg-gray-50">
+            <div class="px-2 w-3/4 ml-1 bg-gray-50">
                 {#if isSearching}
                     <SelectedReceiptSkeleton />
                 {:else}

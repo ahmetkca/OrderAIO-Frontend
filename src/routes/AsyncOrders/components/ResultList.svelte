@@ -25,7 +25,7 @@
     //         }
     //     }
     // }
-    let group = $orders.length > 0 ? 0 : 0;
+    export let group = $orders.length > 0 ? 0 : 0;
     let value = $orders.length > 0 ? 0 : 0;
 
     // $: isSearching,
@@ -134,15 +134,19 @@
 <!--        <span title="{JSON.stringify(filteredData)}">asdasd</span>-->
         <div in:fade class={group === index ? "relative border-2 border-blue-300 pt-2 pb-2 pr-2 card mx-2 mt-0 mb-1 whitespace-nowrap bg-gray-50" : "bg-gray-50 border border-gray-200 pt-2 pb-2 pr-2 card mx-2 mt-0 mb-1 whitespace-nowrap"}>
             {#if filteredData[index].status === undefined}
-                <div class="absolute -top-3 -left-1.5 w-4 h-4 animate-bounce opacity-75">
+                <div class="absolute -top-2.5 -left-1.5 w-4 h-4 animate-bounce ">
                     <i class="fas fa-spinner fa-pulse"></i>
                 </div>
             {:else if filteredData[index].status === "COMPLETED"}
-                <div class="absolute -top-3 -left-1.5 w-4 h-4 animate-bounce opacity-75">
+                <div class="absolute -top-2.5 -left-1.5 w-4 h-4 animate-bounce ">
                     <i style="color: green; font-size: 24px;" class="fas fas fa-check"></i>
                 </div>
+            {:else if filteredData[index].status === "PROBLEM"}
+                <div class="absolute -top-2.5 -left-1.5 w-4 h-4 animate-bounce ">
+                    <i style="color: #FF6405; font-size: 24px;" class="fas fa-exclamation-circle"></i>
+                </div>
             {:else}
-                <div class="absolute -top-3 -left-1.5 w-4 h-4 animate-bounce opacity-75">
+                <div class="absolute -top-2.5 -left-1.5 w-4 h-4 animate-bounce">
                     <i style="color: red; font-size: 24px;" class="fas fa-times"></i>
                 </div>
             {/if}
