@@ -5,7 +5,7 @@ import Success from '../components/Success.svelte';
 // import { toast } from '@zerodevx/svelte-toast';
 import axios from 'axios';
 import Danger from "../components/Danger.svelte";
-const BACKEND_URI = import.meta.env.DEV ? 'https://localhost:8000': 'https://api.orderaio.com';
+export const BACKEND_URI = import.meta.env.DEV ? 'https://localhost:8000': 'https://api.orderaio.com';
 const myAxios = axios.create({
     baseURL: BACKEND_URI,
     // timeout: 2000,

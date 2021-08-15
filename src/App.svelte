@@ -6,16 +6,21 @@
     import Router, {push, location} from 'svelte-spa-router';
     import {publicRoutes, routes} from './routes/routes';
     import {isAuthenticated} from "./stores/user.store";
-    import {
-        etsyConnections,
-        receiptsByShopNames,
-        isFetchingEtsyConnections,
-        isFetchingReceipts
-    } from "./stores/etsyConnection.store";
+    import {socket} from "./stores/socket.io.store";
+    // import {
+    //     etsyConnections,
+    //     receiptsByShopNames,
+    //     isFetchingEtsyConnections,
+    //     isFetchingReceipts
+    // } from "./stores/etsyConnection.store";
     import ToastContainer from "./components/ToastContainer.svelte";
 
+    $socket.on('connection', (data) => {
+        console.log(data);
+    })
 
     onMount(async () => {
+
         console.log($location);
         await oauth2Service.authMe()
             .then(res => {

@@ -7,10 +7,13 @@
     import Danger from '../../../components/Danger.svelte';
 
 
-    import { Pulse } from 'svelte-loading-spinners';
+    import {Pulse} from 'svelte-loading-spinners';
     import {orders} from "../../../stores/orders.store";
 
+
     export let receipt_id;
+
+    let buttonClicked = false;
     let noteLoading = false;
     let doesExists = false;
     let users = [];
@@ -26,6 +29,7 @@
             })
     })
     const updateOrCreateNote = async (statusx) => {
+        buttonClicked = true;
         if (assigned_to !== 'nobody' && assigned_to !== null) {
             console.log(assigned_to);
             statusx = 'PROBLEM'
@@ -33,12 +37,14 @@
         // console.log(assigned_to);
         if (doesExists) {
             console.log("UPDATE")
+
             await receiptNoteService.updateNote(Object.assign({},
                 {receipt_id},
                 {note},
                 {status: statusx},
                 assigned_to === "nobody" ? null : {assigned_to}))
                 .then(res => {
+                    // res.data = res?.data[0];
                     console.log(res.data)
                     note = res?.data?.note;
                     status = res?.data?.status
@@ -61,6 +67,7 @@
                 {status: statusx},
                 assigned_to === "nobody" ? null : {assigned_to}))
                 .then(res => {
+                    // res.data = res?.data[0];
                     console.log(res.data)
                     note = res?.data?.note;
                     status = res?.data?.status
@@ -77,6 +84,7 @@
                 })
             doesExists = true;
         }
+        buttonClicked = false;
     }
 
     const getReceiptNote = async (receiptId) => {
@@ -89,13 +97,14 @@
         updated_by = undefined;
         await receiptNoteService.getNote(receiptId)
             .then(res => {
-                // console.log(res);
+                console.log(res?.data);
+                res.data = res?.data[0];
                 if (res?.status === 200) {
                     doesExists = true;
                     note = res.data?.note;
                     status = res.data?.status;
                     assigned_to = res.data?.assigned_to === undefined ? "nobody" : res.data?.assigned_to;
-                    created_by = res.data?.created_by === undefined ? '': res.data?.created_by;
+                    created_by = res.data?.created_by === undefined ? '' : res.data?.created_by;
                     updated_by = res.data?.updated_by;
                 } else if (res?.response?.status === 404) {
                     doesExists = false;
@@ -131,6 +140,8 @@
 {:else}
     <div class="w-full flex-none image-fit mr-1 relative">
         <textarea class="resize-none w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none" rows="2" bind:value={note}></textarea>
+<!--        <i class="fas fa-tag"></i> LABEL YOK STATUSU -->
+<!--        <i class="fas fa-globe-europe"></i>-->
         <div class="absolute -top-2 -left-2 w-4 h-4 animate-bounce opacity-75">
             {#if status === "COMPLETED"}
                 <i style="color: green; font-size: 24px;" class="fas fas fa-check"></i>

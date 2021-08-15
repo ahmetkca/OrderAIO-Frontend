@@ -122,20 +122,37 @@
 
     const getReceiptStatus = async () => {
         console.log("GETTING RECEIPTS NOTES");
-        for (let i = 0; i < $orders.length; i++) {
-            await receiptNoteService.getNote( $orders[i].receipt_id)
+        // for (let i = 0; i < $orders.length; i++) {
+            $orders.map((order) => order.receipt_id ).join()
+            await receiptNoteService.getNote( $orders.map((order) => order.receipt_id ).join())
                 .then(res => {
                     if (res?.status === 200) {
-                        $orders[i].status = res?.data?.status;
+                        const ordersIndexDict = new Map($orders.map((order, index) => [order.receipt_id, index]));
+                        // const ordersIndexDict = $orders.reduce((map, obj, i) => {
+                        //     map[obj.receipt_id] = 0;
+                        //     return map
+                        // }, {});
+                        console.info(ordersIndexDict)
+                        const orderNotes = res?.data;
+                        for (let indx = 0; indx < orderNotes.length; indx++) {
+                            console.log($orders[ordersIndexDict.get(orderNotes[indx].receipt_id)].shop_name)
+                            $orders[ordersIndexDict.get(orderNotes[indx].receipt_id)].status = orderNotes[indx]?.status;
+                            $orders[ordersIndexDict.get(orderNotes[indx].receipt_id)].note = orderNotes[indx]?.note;
+                            $orders[ordersIndexDict.get(orderNotes[indx].receipt_id)].created_by = orderNotes[indx]?.created_by;
+                            $orders[ordersIndexDict.get(orderNotes[indx].receipt_id)].assigned_to = orderNotes[indx]?.assigned_to;
+                            $orders[ordersIndexDict.get(orderNotes[indx].receipt_id)].updated_by = orderNotes[indx]?.updated_by;
+
+                        }
+                        // $orders[i].status = res?.data?.status;
                         // receipt.status = res?.data?.status;
                         // return {...el, 'status': res?.data?.status}
                     } else if (res?.response?.status === 404) {
-                        $orders[i].status = "UNCOMPLETED"
+                        // $orders[i].status = "UNCOMPLETED"
                         // return {...el, 'status': 'UNCOMPLETED'}
                         // receipt.status = 'UNCOMPLETED';
                     }
                 })
-        }
+        // }
         // setTimeout(async () => {
         //
         // },250);
