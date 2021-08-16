@@ -1,4 +1,5 @@
 <script>
+    import {onMount} from 'svelte';
     import {push} from 'svelte-spa-router';
     import receiptNoteService from "../../../services/receiptNote.service";
     import {toasts} from "../../../stores/toast.store";
@@ -9,6 +10,13 @@
     const dispatch = createEventDispatcher();
 
     export let assigned_receipt_note = {};
+    let note = '';
+
+    onMount(() => {
+        if (assigned_receipt_note?.note) {
+            note = assigned_receipt_note.note
+        }
+    })
 
     const goToReceiptInOrdersTab = async (receipt_id) => {
         if (receipt_id) {
@@ -17,10 +25,11 @@
     }
 
     const resolve = async (receipt_id) => {
+        note = `RESOLVED.\n${note}`;
         await receiptNoteService.updateNote(Object.assign({},
             {receipt_id},
             {status: 'UNCOMPLETED'},
-            {note: assigned_receipt_note?.note}
+            {note: note}
             )
         )
             .then(res => {
@@ -55,7 +64,7 @@
 <!--        </div>-->
     </div>
 
-    <textarea class="mx-0.5 resize-none w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none" rows="2" value={assigned_receipt_note?.note}></textarea>
+    <textarea class="mx-0.5 resize-none w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none" rows="2" bind:value={note}></textarea>
 <!--    <a href="/orders?query={assigned_receipt_note?.receipt_id}" target="_blank" >open receipt in a new tab</a>-->
     <div class="flex flex-row  flex-shrink my-1">
         <button class="transition-all mx-0.5 bg-white hover:bg-gray-300 text-gray-800 font-semibold py-1 px-3 border border-gray-400 rounded" on:click={() => goToReceiptInOrdersTab(assigned_receipt_note?.receipt_id)}>Open</button>

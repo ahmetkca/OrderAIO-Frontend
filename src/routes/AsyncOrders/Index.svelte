@@ -66,6 +66,11 @@
                 "is_gift",
                 "gift_message",
                 "message_from_buyer",
+                "first_line",
+                "second_line",
+                "city",
+                "state",
+                "zip",
                 "formatted_address",
                 "buyer_email",
                 "Transactions.transaction_id",
@@ -135,7 +140,7 @@
                         console.info(ordersIndexDict)
                         const orderNotes = res?.data;
                         for (let indx = 0; indx < orderNotes.length; indx++) {
-                            console.log($orders[ordersIndexDict.get(orderNotes[indx].receipt_id)].shop_name)
+                            // console.log($orders[ordersIndexDict.get(orderNotes[indx].receipt_id)].shop_name)
                             $orders[ordersIndexDict.get(orderNotes[indx].receipt_id)].status = orderNotes[indx]?.status;
                             $orders[ordersIndexDict.get(orderNotes[indx].receipt_id)].note = orderNotes[indx]?.note;
                             $orders[ordersIndexDict.get(orderNotes[indx].receipt_id)].created_by = orderNotes[indx]?.created_by;
@@ -242,10 +247,13 @@
                     on:notInCurrentData={handleNotInCurrentData}/>
 <!--            </div>-->
             <div class="px-2 w-3/4 ml-1 bg-gray-50">
+
                 {#if isSearching}
                     <SelectedReceiptSkeleton />
                 {:else}
-                    <SelectedReceipt {receipt}/>
+                    {#key receipt?.receipt_id}
+                        <SelectedReceipt {receipt}/>
+                    {/key}
                 {/if}
             </div>
         </div>

@@ -14,6 +14,9 @@
     //     isFetchingReceipts
     // } from "./stores/etsyConnection.store";
     import ToastContainer from "./components/ToastContainer.svelte";
+    import {etsyConnections} from "./stores/etsyConnection.store";
+    import {users} from './stores/users.store';
+    import usersService from "./services/users.service";
 
     // $socket.on('connection', (data) => {
     //     console.log(data);
@@ -37,9 +40,6 @@
                     if ($oauth2_user?.user.length > 0 && $oauth2_user?.user_id.length > 0) {
                         isAuthenticated.set(true);
                     }
-                    if ($isAuthenticated) {
-                        push('/connections')
-                    }
                 }
 
             })
@@ -48,6 +48,15 @@
                 push(`/login?error=${err}`)
             })
         if ($isAuthenticated) {
+            await etsyConnections.reload();
+            await usersService.getAllUsers()
+                .then(res => {
+                    console.trace(res.data)
+                    users.set(res.data);
+                    // return res.data
+                })
+            // await users.reload()
+            await push('/connections')
             // if (!$isFetchingEtsyConnections) {
             //     await etsyConnections.reload();
             // }

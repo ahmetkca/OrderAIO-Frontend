@@ -9,6 +9,7 @@
 
     import {Pulse} from 'svelte-loading-spinners';
     import {orders} from "../../../stores/orders.store";
+    import {users} from "../../../stores/users.store";
 
 
     export let receipt_id;
@@ -16,17 +17,15 @@
     let buttonClicked = false;
     let noteLoading = false;
     let doesExists = false;
-    let users = [];
+    // let users = $users;
     let note = '';
     let status = '';
     let assigned_to = 'nobody';
     let created_by = '';
     let updated_by = undefined;
     onMount(async () => {
-        await usersService.getAllUsers()
-            .then(res => {
-                users = res.data;
-            })
+        console.trace($users)
+        await getReceiptNote(receipt_id)
     })
     const updateOrCreateNote = async (statusx) => {
         buttonClicked = true;
@@ -98,8 +97,9 @@
         await receiptNoteService.getNote(receiptId)
             .then(res => {
                 console.log(res?.data);
-                res.data = res?.data[0];
+
                 if (res?.status === 200) {
+                    res.data = res?.data[0];
                     doesExists = true;
                     note = res.data?.note;
                     status = res.data?.status;
@@ -121,14 +121,10 @@
             })
     }
     // $: console.log(receiptNote);
-    $: {
-        getReceiptNote(receipt_id)
-            .then(res => {
-                // console.trace(res)
-            })
-    }
 </script>
 
+<!--{doesExists}-->
+<!--{JSON.stringify($users)}-->
 {#if noteLoading}
     <div class="flex flex-wrap items-center align-middle content-center h-1/2 w-1/2 px-auto mx-auto">
         <div>
@@ -154,20 +150,25 @@
     </div>
     <select bind:value={assigned_to} class="w-full border bg-white rounded px-3 py-2 outline-none">
         <option value="nobody" class="py-1" selected={assigned_to === "nobody"}>Nobody assigned</option>
-        {#each users as user (user?._id)}
+        {#each $users as user (user?._id)}
             <option value={user?.username} class="py-1" selected={assigned_to === user?.username}>{user?.username}</option>
         {/each}
     </select>
     <div class="flex flex-wrap mt-2 justify-between">
-        <div class="flex flex-row space-x-4">
-            <button on:click={() => updateOrCreateNote("COMPLETED")} class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-                Complete <i class="fas fa-check"></i>
+        <div class="flex justify-center rounded-lg text-lg mb-4">
+            <button disabled={buttonClicked} class:opacity-50={buttonClicked} on:click={() => updateOrCreateNote("COMPLETED")} class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-l">
+                Complete {#if buttonClicked}<i class="fas fa-spinner fa-pulse"></i>{:else}<i class="fas fa-check"></i>{/if}
             </button>
-            <button on:click={() => updateOrCreateNote("UNCOMPLETED")} class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded">
-                <i class="fas fa-times"></i>
+            <button disabled={buttonClicked} class:opacity-50={buttonClicked} on:click={() => updateOrCreateNote("UNCOMPLETED")} class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-l-0 border-gray-400 rounded-r">
+                {#if buttonClicked}
+                    <i class="fas fa-spinner fa-pulse"></i>
+                {:else}
+                    <i class="fas fa-times"></i>
+                {/if}
+
             </button>
         </div>
-        <div class="flex flex-col space-y-1 items-end align-middle justify-between">
+        <div class="flex flex-col space-y-1 items-end align-middle justify-between font-light">
             {#if status === "COMPLETED"}
                 <p class="text-xs align-middle">Completed by {created_by || updated_by}</p>
             {:else if status === "UNCOMPLETED" || doesExists === false}

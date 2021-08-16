@@ -1,8 +1,13 @@
 <script>
+    import {push} from 'svelte-spa-router';
+    import {onMount} from 'svelte';
+    import MyModal, {getModal} from '../../../lib/MyModal.svelte';
+    import checkSameAddressSameNameService from '../../../services/check_same_address_same_name.service';
     export let receipt = {};
     import {toasts} from "../../../stores/toast.store";
     import Success from "../../../components/Success.svelte";
     import Danger from '../../../components/Danger.svelte';
+
     import Info from '../../../components/Info.svelte'
     import Warning from '../../../components/Warning.svelte';
     import TransactionList from './TransactionList.svelte';
@@ -11,8 +16,31 @@
     import print from 'print-js';
 
     let isLabelLoading = false;
+    let possibleSameNameSameAddressOrders = [];
+    let isLoadingCheckSameAddressSameName = false;
 
-
+    onMount(async () => {
+        isLoadingCheckSameAddressSameName = true;
+        await checkSameAddressSameNameService.checkSameAddressSameName({
+            receipt_id_to_exclude: receipt?.receipt_id,
+            name: receipt?.name,
+            first_line: receipt?.first_line,
+            second_line: receipt?.second_line,
+            city: receipt?.city,
+            state: receipt?.state,
+            zip: receipt?.zip
+        })
+            .then(res => {
+                if (res?.status === 200) {
+                    possibleSameNameSameAddressOrders = res?.data;
+                } else if (res?.response?.status === 404) {
+                    // console.error(res?.response?.data?.detail)
+                }
+                // console.log(res);
+            })
+        isLoadingCheckSameAddressSameName = false;
+        // console.log(receipt?.first_line)
+    })
 
     const getLabelPdf = async () => {
         isLabelLoading = true;
@@ -46,6 +74,52 @@
         isLabelLoading = false;
     }
 </script>
+
+<MyModal id="same_address_same_name">
+    <div slot="header">
+        Same Address Same Name Orders
+    </div>
+    <div slot="body">
+        {#if possibleSameNameSameAddressOrders.length === 0}
+            <p>No order found with the same address and same name.</p>
+        {:else}
+            <ul class="my-1 py-1">
+                {#each possibleSameNameSameAddressOrders as sameNameSameOrder}
+                    <li class="underline italic font-semibold">{sameNameSameOrder.receipt_id}</li>
+                {/each}
+            </ul>
+        {/if}
+    </div>
+    <div slot="footer">
+        <div class="flex justify-between">
+            <button on:click={() => getModal('same_address_same_name').close()} type="button" class="block px-4 py-2 text-white transition duration-100 ease-in-out bg-blue-500 border border-transparent rounded shadow-sm hover:bg-blue-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:ring-opacity-50  disabled:opacity-50 disabled:cursor-not-allowed">Cancel</button>
+            <button on:click={() => getModal('same_address_same_name').close()} type="button" class="block px-4 py-2 text-white transition duration-100 ease-in-out bg-blue-500 border border-transparent rounded shadow-sm hover:bg-blue-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:ring-opacity-50  disabled:opacity-50 disabled:cursor-not-allowed">Ok</button>
+        </div>
+    </div>
+</MyModal>
+
+<MyModal id="gift_and_note">
+    <div slot="header">
+        Gift and Note
+    </div>
+    <div slot="body">
+        <p><span class="underline">Gift:</span> {#if receipt?.is_gift}<span style="color: rgba(52, 211, 153, 1);"><i class="fas fa-check-circle"></i></span>{:else}<span style="color: rgba(248, 113, 113, 1);"><i class="fas fa-times-circle"></i></span>{/if}</p>
+        {#if receipt?.is_gift}
+            <p class="px-1 py-0.5 text-sm font-light">{receipt?.gift_message}</p>
+        {/if}
+        <p><span class="underline">Note:</span> {#if receipt?.message_from_buyer?.length > 0}<span style="color: rgba(52, 211, 153, 1);"><i
+                class="fas fa-check-circle"></i></span>{:else}<span style="color: rgba(248, 113, 113, 1);"><i class="fas fa-times-circle"></i></span>{/if}</p>
+        {#if receipt?.message_from_buyer?.length > 0}
+            <p class="px-1 py-0.5  text-sm font-light">{receipt?.message_from_buyer}</p>
+        {/if}
+    </div>
+    <div slot="footer">
+        <div class="flex justify-between">
+            <button on:click={() => getModal('gift_and_note').close()} type="button" class="block px-4 py-2 text-white transition duration-100 ease-in-out bg-blue-500 border border-transparent rounded shadow-sm hover:bg-blue-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:ring-opacity-50  disabled:opacity-50 disabled:cursor-not-allowed">Cancel</button>
+            <button on:click={() => getModal('gift_and_note').close()} type="button" class="block px-4 py-2 text-white transition duration-100 ease-in-out bg-blue-500 border border-transparent rounded shadow-sm hover:bg-blue-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:ring-opacity-50  disabled:opacity-50 disabled:cursor-not-allowed">Ok</button>
+        </div>
+    </div>
+</MyModal>
 <!--<embed-->
 <!--        type="application/pdf"-->
 <!--        src={myblob ? window.URL.createObjectURL(myblob) : ''}-->
@@ -63,7 +137,7 @@
             <div class="w-1/3">
                 <div class="flex flex-row justify-between align-middle">
                     <p class="text-lg font-semibold">{receipt?.receipt_id}</p>
-                    <button disabled={isLabelLoading} on:click={getLabelPdf} class="focus:outline-none transition-colors bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 w-24 items-center rounded-lg mr-6">
+                    <button disabled={isLabelLoading} class:opacity-50={isLabelLoading} on:click={getLabelPdf} class="focus:outline-none transition-colors bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 w-24 items-center rounded-lg mr-6">
                         {#if isLabelLoading}
                             <i class="fas fa-spinner fa-pulse"></i>
                         {:else}
@@ -74,16 +148,28 @@
                 </div>
 
                 <!--{receipt?.shop_name}-->
-                <p class="text-base">{receipt?.grandtotal} {receipt?.currency_code}</p>
-                <p>Gift: {#if receipt?.is_gift}<span style="color: rgba(52, 211, 153, 1);"><i class="fas fa-check-circle"></i></span>{:else}<span style="color: rgba(248, 113, 113, 1);"><i class="fas fa-times-circle"></i></span>{/if}</p>
-                {#if receipt?.is_gift}
-                    <p class="text-sm font-light">{receipt?.gift_message}</p>
-                {/if}
-                <p>Note: {#if receipt?.message_from_buyer?.length > 0}<span style="color: rgba(52, 211, 153, 1);"><i
-                        class="fas fa-check-circle"></i></span>{:else}<span style="color: rgba(248, 113, 113, 1);"><i class="fas fa-times-circle"></i></span>{/if}</p>
-                {#if receipt?.message_from_buyer?.length > 0}
-                    <p class="text-sm font-light">{receipt?.message_from_buyer}</p>
-                {/if}
+                <div class="flex flex-row justify-between align-middle mt-1">
+                    <p class="text-base">{receipt?.grandtotal} {receipt?.currency_code}</p>
+                    <button disabled="{isLoadingCheckSameAddressSameName}" class:opacity-50={isLoadingCheckSameAddressSameName} on:click={() => getModal('same_address_same_name').open()} title="There are {possibleSameNameSameAddressOrders ? possibleSameNameSameAddressOrders?.length: '0'} more receipts with the same address same name. Click to see more." class="text-sm font-light focus:outline-none transition-all border border-blue-600 bg-transparent hover:bg-blue-600 hover:text-white text-blue-600 font-bold py-0.5 px-1 w-24 items-center rounded-lg mr-6 w-1/2">
+                        {#if isLoadingCheckSameAddressSameName}
+                            <i class="fas fa-spinner fa-pulse"></i> Checking orders...
+                        {:else}
+                            See {possibleSameNameSameAddressOrders ? possibleSameNameSameAddressOrders?.length: '0'} more orders
+                        {/if}
+                    </button>
+                </div>
+                <div class="flex flex-col" on:click={() => getModal('gift_and_note').open()}>
+                    <p><span class="underline">Gift:</span> {#if receipt?.is_gift}<span style="color: rgba(52, 211, 153, 1);"><i class="fas fa-check-circle"></i></span>{:else}<span style="color: rgba(248, 113, 113, 1);"><i class="fas fa-times-circle"></i></span>{/if}</p>
+                    {#if receipt?.is_gift}
+                        <p class="px-1 py-0.5 truncate text-xm font-light">{receipt?.gift_message}</p>
+                    {/if}
+                    <p><span class="underline">Note:</span> {#if receipt?.message_from_buyer?.length > 0}<span style="color: rgba(52, 211, 153, 1);"><i
+                            class="fas fa-check-circle"></i></span>{:else}<span style="color: rgba(248, 113, 113, 1);"><i class="fas fa-times-circle"></i></span>{/if}</p>
+                    {#if receipt?.message_from_buyer?.length > 0}
+                        <p class="px-1 py-0.5 truncate text-xm font-light">{receipt?.message_from_buyer}</p>
+                    {/if}
+                </div>
+
             </div>
             <div class="w-1/3 space-y-1">
                 {#each receipt?.formatted_address?.split("\n") as l}
@@ -97,7 +183,9 @@
                 <p>{receipt?.buyer_email}</p>
             </div>
             <div class="w-1/3">
-                <ReceiptNote receipt_id={receipt?.receipt_id}/>
+                {#key receipt?.receipt_id}
+                    <ReceiptNote receipt_id={receipt?.receipt_id}/>
+                {/key}
             </div>
         </div>
         <div class="w-full h-3/4">
