@@ -7,19 +7,38 @@
     import {toasts} from "../../../stores/toast.store";
     import Success from "../../../components/Success.svelte";
     import Danger from '../../../components/Danger.svelte';
-
-    import Info from '../../../components/Info.svelte'
+    import Info from "../../../components/Info.svelte"
     import Warning from '../../../components/Warning.svelte';
     import TransactionList from './TransactionList.svelte';
     import ReceiptNote from './ReceiptNote.svelte'
     import receiptLabelPrintService from '../../../services/receiptLabelPrint.service';
     import print from 'print-js';
+    import shipmentsService from '../../../services/shipments.service';
+    import Icon from '@iconify/svelte';
 
     let isLabelLoading = false;
     let possibleSameNameSameAddressOrders = [];
     let isLoadingCheckSameAddressSameName = false;
+    let isStallionStatusLoading = false;
+    let labelStatus = 'No label'
 
     onMount(async () => {
+        isStallionStatusLoading = true;
+        await shipmentsService.getStallionLabelStatusByOrderId(receipt?.receipt_id)
+            .then(res => {
+                if (res?.status === 200) {
+                    labelStatus = res?.data ? res.data : "No label"
+                    console.log(res?.data)
+                    console.log(labelStatus)
+                    toasts.push(Info, 4000, {message: `Label found for ${receipt?.name} with the ${receipt?.receipt_id} order id.`})
+                } else if (res?.response?.status === 404) {
+                    toasts.push(Danger, 3500, {message: res?.response?.data?.detail})
+                }
+            })
+            .catch(err => {
+                toasts.push(Danger, 3500, {message: err})
+            })
+        isStallionStatusLoading = false;
         isLoadingCheckSameAddressSameName = true;
         await checkSameAddressSameNameService.checkSameAddressSameName({
             receipt_id_to_exclude: receipt?.receipt_id,
@@ -136,7 +155,36 @@
             <!-- TOP PART -->
             <div class="w-1/3">
                 <div class="flex flex-row justify-between align-middle">
-                    <p class="text-lg font-semibold">{receipt?.receipt_id}</p>
+                    <p class="text-md font-semibold">{receipt?.receipt_id}</p>
+                    {#if isStallionStatusLoading}
+                        <p class="self-center text-xs font-light">Label status loading <i class="fas fa-spinner fa-pulse"></i></p>
+                    {:else}
+                        <div class="flex justify-between align-middle items-center">
+                            <p class=" self-center text-xs font-light mr-1">{labelStatus}</p>
+                            {#if labelStatus === "Ready"}
+                                <Icon class=" self-center" icon="mdi:cube-outline" align="center" color="green"  width="20" height="20" />
+                            {:else if labelStatus === "In Transit"}
+                                <Icon class="self-center" icon="mdi:cube-send" align="center" color="purple"  width="20" height="20" />
+                            {:else if labelStatus === "Delivered"}
+                                <Icon class="self-center" icon="mdi:check" align="center" color="blue"  width="20" height="20" />
+                            {:else if labelStatus === "Incomplete"}
+                                <Icon class="self-center" icon="mdi:circle-edit-outline" align="center" color="red"  width="20" height="20" />
+                            {:else if labelStatus === "Pending"}
+                                <Icon class="self-center" icon="mdi:pause-circle-outline" align="center" color="orange"  width="20" height="20" />
+                            {:else if labelStatus === "Void Requested"}
+                                <Icon class="self-center" icon="mdi:select" align="center" color="red"  width="20" height="20" />
+                            {:else if labelStatus === "Voided"}
+                                <Icon class="self-center" icon="mdi:select-off" align="center" color="red"  width="20" height="20" />
+                            {:else if labelStatus === "No label"}
+                                <Icon class="self-center" icon="ic:baseline-do-not-disturb" hAlign={true} inline={true} color="red"  width="20" height="20" />
+                            {:else if labelStatus === "Expired"}
+                                <Icon class="self-center" icon="mdi:alert-outline" hAlign={true} inline={true} color="orange"  width="20" height="20" />
+                            {:else}
+                                <Icon icon="ic:baseline-do-not-disturb" class="ml-2 self-center"  align="center" inline={true} color="red"  width="20" height="20"/>
+                            {/if}
+                        </div>
+
+                    {/if}
                     <button disabled={isLabelLoading} class:opacity-50={isLabelLoading} on:click={getLabelPdf} class="focus:outline-none transition-colors bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 w-24 items-center rounded-lg mr-6">
                         {#if isLabelLoading}
                             <i class="fas fa-spinner fa-pulse"></i>

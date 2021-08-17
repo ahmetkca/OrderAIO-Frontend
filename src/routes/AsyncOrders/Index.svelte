@@ -16,6 +16,7 @@
     import receiptNoteService from '../../services/receiptNote.service';
     import {toasts} from "../../stores/toast.store";
     import Warning from "../../components/Warning.svelte";
+    import Danger from '../../components/Danger.svelte';
 
     let group = 0;
 
@@ -129,7 +130,8 @@
         console.log("GETTING RECEIPTS NOTES");
         // for (let i = 0; i < $orders.length; i++) {
             $orders.map((order) => order.receipt_id ).join()
-            await receiptNoteService.getNote( $orders.map((order) => order.receipt_id ).join())
+            // await receiptNoteService.getNote( $orders.map((order) => order.receipt_id ).join())
+            await receiptNoteService.getMultipleNotes($orders.map((order) => order.receipt_id))
                 .then(res => {
                     if (res?.status === 200) {
                         const ordersIndexDict = new Map($orders.map((order, index) => [order.receipt_id, index]));
@@ -152,6 +154,7 @@
                         // receipt.status = res?.data?.status;
                         // return {...el, 'status': res?.data?.status}
                     } else if (res?.response?.status === 404) {
+                        toasts.push(Danger, 3500, {message: res?.response?.data?.detail})
                         // $orders[i].status = "UNCOMPLETED"
                         // return {...el, 'status': 'UNCOMPLETED'}
                         // receipt.status = 'UNCOMPLETED';

@@ -41,4 +41,15 @@ export default {
                 return err
             })
     },
+
+    async getMultipleNotes(receipt_ids) {
+        return await axios.post('/user/multiple_notes', {
+            receipt_ids: receipt_ids
+        })
+            .then(res => {
+                return res;
+            }).catch(err => {
+                return err
+            })
+    }
 }
