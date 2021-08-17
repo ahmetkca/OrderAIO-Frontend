@@ -157,10 +157,10 @@
                 <div class="flex flex-row justify-between align-middle">
                     <p class="text-md font-semibold">{receipt?.receipt_id}</p>
                     {#if isStallionStatusLoading}
-                        <p class="self-center text-xs font-light">Label status loading <i class="fas fa-spinner fa-pulse"></i></p>
+                        <p class="self-center text-sm font-light">Label status loading <i class="fas fa-spinner fa-pulse"></i></p>
                     {:else}
                         <div class="flex justify-between align-middle items-center">
-                            <p class=" self-center text-xs font-light mr-1">{labelStatus}</p>
+                            <p class=" self-center text-sm font-light mr-1">{labelStatus}</p>
                             {#if labelStatus === "Ready"}
                                 <Icon class=" self-center" icon="mdi:cube-outline" align="center" color="green"  width="20" height="20" />
                             {:else if labelStatus === "In Transit"}

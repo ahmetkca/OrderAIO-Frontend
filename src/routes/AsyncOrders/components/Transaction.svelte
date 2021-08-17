@@ -28,10 +28,10 @@
 
     <div class="w-2/3 ml-2 p-2">
         <div class="grid grid-rows gap-2">
-            <div class={transaction?.quantity > 1 ? "text- border-2 border-red-400 rounded-lg p-1" : "border border-gray-400 rounded-lg p-1"}>
+            <div class={transaction?.quantity > 1 ? "text-white bg-red-400 border-2 border-red-400 rounded-lg p-1" : " border border-gray-400 rounded-lg p-1"}>
                 Quantity
                 <br>
-                <p class="font-semibold">{transaction?.quantity}</p>
+                <p class={transaction?.quantity > 1 ? "font-bold text-xl": "font-semibold"}>{transaction?.quantity}</p>
             </div>
             {#each transaction?.variations as variation (variation?.property_id)}
                 <div class="border border-gray-400 rounded-lg p-1 min-w-max">
