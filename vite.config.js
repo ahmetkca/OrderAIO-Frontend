@@ -17,14 +17,7 @@ export default ({ mode }) => {
     }
   } else if (mode === "production") {
     return {
-      plugins: [svelte()],
-      build: {
-        rollupOptions: {
-          external: [
-            "dayjs"
-          ],
-        }
-      }
+      plugins: [svelte()]
     }
   }
 }
