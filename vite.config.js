@@ -24,10 +24,7 @@ export default ({ mode }) => {
             "dayjs"
           ],
         }
-      },
-      optimizeDeps: {
-        exclude: ['dayjs'],
-      },
+      }
     }
   }
 }

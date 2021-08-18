@@ -4,7 +4,7 @@
     import MyModal, {getModal} from '../../../lib/MyModal.svelte';
     import dayjs from "dayjs";
     import relativeTime from 'dayjs/plugin/relativeTime';
-    import LocalizedFormat from 'dayjs/esm/plugin/LocalizedFormat';
+    import LocalizedFormat from 'dayjs/plugin/LocalizedFormat';
 
     dayjs.extend(relativeTime);
     dayjs.extend(LocalizedFormat);
