@@ -17,7 +17,10 @@ export default ({ mode }) => {
     }
   } else if (mode === "production") {
     return {
-      plugins: [svelte()]
+      plugins: [svelte()],
+      optimizeDeps: {
+        exclude: ['dayjs'],
+      }
     }
   }
 }
