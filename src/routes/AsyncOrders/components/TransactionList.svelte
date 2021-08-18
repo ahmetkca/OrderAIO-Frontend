@@ -19,7 +19,7 @@
 </script>
 
 <div class="overflow-y-auto mx-2" style={isInModal ? "max-height: 26rem;" : "max-height: 37.25rem;"}>
-    {isInModal}
+    <!--{isInModal}-->
     {#if transactions !== undefined}
         <div class="flex align-middle items-start">
             <p class="my-1 self-center text-lg font-semibold underline">{transactions.length} jewelry type</p>
