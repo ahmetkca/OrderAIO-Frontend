@@ -39,7 +39,7 @@
         </div>
 
         <div class="flex flex-col flex-no-wrap px-1 w-full">
-            <div class="flex my-auto font-bold select-none">{name}</div>
+            <div class="flex my-auto font-bold select-none">Success</div>
             <p class="-mt-0.5 my-auto break-all flex text-gray-600 text-sm">
                 {message}
             </p>
