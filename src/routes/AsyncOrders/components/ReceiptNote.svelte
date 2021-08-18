@@ -4,10 +4,10 @@
     import MyModal, {getModal} from '../../../lib/MyModal.svelte';
     import dayjs from "dayjs";
     import relativeTime from 'dayjs/plugin/relativeTime';
-    import localizedFormat from 'dayjs/plugin/LocalizedFormat';
+    import LocalizedFormat from 'dayjs/plugin/LocalizedFormat.js';
 
     dayjs.extend(relativeTime);
-    dayjs.extend(localizedFormat);
+    dayjs.extend(LocalizedFormat);
     // import usersService from '../../../services/users.service';
     // import {toasts} from "../../../stores/toast.store";
     // import Success from "../../../components/Success.svelte";
