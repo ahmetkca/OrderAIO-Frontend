@@ -10,12 +10,15 @@
 
     // import receiptNoteService from '../../../services/receiptNote.service';
     dayjs.extend(relativeTime);
-
+    let innerWidth = 0;
+    let innerHeight = 0;
     // let $orders = $orders;
     const dispatch = createEventDispatcher();
     export let searchData = "";
     let filteredData = [];
     export let isSearching = false;
+    let searchBarInputTag;
+    let isMounted = false;
     // $: {
     //     filteredData = $orders.filter(receipt => receipt?.name.toLowerCase().indexOf(searchData.toLowerCase()) !== -1 || receipt?.receipt_id.toString().indexOf(searchData) !== -1);
     //     if (filteredData.length === 0) {
@@ -31,6 +34,8 @@
     // $: isSearching,
 
     onMount(async () => {
+        isMounted = true;
+        searchBarInputTag.focus()
         filteredData = $orders.filter(receipt => receipt?.name.toLowerCase().indexOf(searchData.toLowerCase()) !== -1 || receipt?.receipt_id.toString().indexOf(searchData) !== -1);
         // await getReceiptStatus();
         // console.info(filteredData);
@@ -57,6 +62,7 @@
                 dispatch("notInCurrentData", {query: searchData});
             }
         }
+        searchBarInputTag.focus()
     }
 
     const handleKeyPress = (e) => {
@@ -107,18 +113,21 @@
     //         })
     // }
 </script>
-
+<!--<svelte:window-->
+<!--        bind:innerWidth={innerWidth}-->
+<!--        bind:innerHeight={innerHeight}-->
+<!--/>-->
 <VirtualList
-        width="22%"
-        height={800}
+        width="24%"
+        height={825}
         itemCount={filteredData.length}
         itemSize={125}>
 
     <div slot="header" class="px-1 mb-2 mx-1">
         <!--{JSON.stringify(filteredData)}-->
         <div class="shadow flex border border">
-            <input on:keypress={handleKeyPress} class="w-full rounded p-2 focus:outline-none" type="text" bind:value={searchData} placeholder="Search...">
-            <button on:click={() => {searchData = ""}} class="focus:outline-none w-auto flex justify-end items-center text-gray-500 p-2 hover:text-gray-400">
+            <input bind:this={searchBarInputTag} on:keypress={handleKeyPress} class="w-full rounded p-2 focus:outline-none" type="text" bind:value={searchData} placeholder="Search...">
+            <button on:click={() => {searchData = ""; dispatch('reloadFilter')}} class="focus:outline-none w-auto flex justify-end items-center text-gray-500 p-2 hover:text-gray-400">
                 <i class="fas fa-times"></i>
             </button>
             <button on:click={search} class="focus:outline-none w-auto flex justify-end items-center text-blue-500 p-2 hover:text-blue-400">

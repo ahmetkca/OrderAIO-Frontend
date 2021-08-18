@@ -1,5 +1,6 @@
 <script>
     import {onMount} from 'svelte';
+    // import {createEventDispatcher} from 'svelte';
     import {push} from 'svelte-spa-router';
     import receiptNoteService from "../../../services/receiptNote.service";
     import {toasts} from "../../../stores/toast.store";
@@ -7,16 +8,30 @@
     import Warning from "../../../components/Warning.svelte";
     import {createEventDispatcher} from 'svelte';
 
+    import SelectedReceipt from "../../AsyncOrders/components/SelectedReceipt.svelte";
+    import searchService from "../../../services/search.service";
+    import {user} from "../../../stores/user.store";
+
+
     const dispatch = createEventDispatcher();
 
     export let assigned_receipt_note = {};
+    // let note = '';
+    let receipt = {};
     let note = '';
-
+    $: note = assigned_receipt_note?.note ? assigned_receipt_note.note : '';
     onMount(() => {
-        if (assigned_receipt_note?.note) {
-            note = assigned_receipt_note.note
-        }
+        console.log(assigned_receipt_note?.receipt_id)
+        // note = assigned_receipt_note?.note ? assigned_receipt_note.note : '';
     })
+    // onMount(async () => {
+    //     await searchByReceiptId(assigned_receipt_note?.receipt_id)
+    //
+    //     console.log(assigned_receipt_note)
+    //     // if (assigned_receipt_note?.note) {
+    //     //
+    //     // }
+    // })
 
     const goToReceiptInOrdersTab = async (receipt_id) => {
         if (receipt_id) {
@@ -25,7 +40,7 @@
     }
 
     const resolve = async (receipt_id) => {
-        note = `RESOLVED.\n${note}`;
+        note = `RESOLVED by ${$user?.username}.\n${note}`;
         await receiptNoteService.updateNote(Object.assign({},
             {receipt_id},
             {status: 'UNCOMPLETED'},
@@ -46,7 +61,75 @@
                 toasts.push(Warning, 3500, {message: `${err}`});
             })
     }
+
+    const searchByReceiptId = async (receipt_id) => {
+        await searchService.search({
+            query: receipt_id,
+            projection: [
+                "max_due_date",
+                "receipt_id",
+                "name",
+                "shop_name",
+                "grandtotal",
+                "currency_code",
+                "is_gift",
+                "gift_message",
+                "message_from_buyer",
+                "first_line",
+                "second_line",
+                "city",
+                "state",
+                "zip",
+                "formatted_address",
+                "buyer_email",
+                "Transactions.transaction_id",
+                "Transactions.MainImage.url_fullxfull",
+                "Transactions.title",
+                "Transactions.variations",
+                "Transactions.quantity",
+                "Transactions.MainImage.url_170x135",
+            ]
+        })
+            .then(res => {
+                // res.data.forEach(async (receipt, index) => {
+                //     await receiptNoteService.getNote(receipt.receipt_id)
+                //         .then(res => {
+                //             if (res?.status === 200) {
+                //                 receipt.status = res?.data?.status;
+                //                 // return {...el, 'status': res?.data?.status}
+                //             } else if (res?.response?.status === 404) {
+                //                 // return {...el, 'status': 'UNCOMPLETED'}
+                //                 receipt.status = 'UNCOMPLETED';
+                //             }
+                //         })
+                // })
+                if (res?.status === 200) {
+                    if (res?.data && res.data.length > 0) {
+                        receipt = res.data[0];
+                        dispatch('openInModal', {
+                            receipt: res.data[0]
+                        })
+                    }
+                    // console.log(res?.data);
+                    // receipt = res?.data
+                }
+                // orders.set(res.data);
+                // console.log(res.data);
+            })
+            .catch(err => {
+                console.error(err);
+            });
+    }
+
+    const handleOpenInModal = async () => {
+        await searchByReceiptId(assigned_receipt_note?.receipt_id);
+        // getModal('receipt_from_assigned_note').open();
+    }
+
 </script>
+
+
+
 
 <div class="border border-gray-200 rounded bg-gray-50 px-2 mb-1">
     <div class="mx-0.5 flex flex-row">
@@ -67,10 +150,11 @@
     <textarea class="mx-0.5 resize-none w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none" rows="2" bind:value={note}></textarea>
 <!--    <a href="/orders?query={assigned_receipt_note?.receipt_id}" target="_blank" >open receipt in a new tab</a>-->
     <div class="flex flex-row  flex-shrink my-1">
-        <button class="transition-all mx-0.5 bg-white hover:bg-gray-300 text-gray-800 font-semibold py-1 px-3 border border-gray-400 rounded" on:click={() => goToReceiptInOrdersTab(assigned_receipt_note?.receipt_id)}>Open</button>
+<!--        <button class="transition-all mx-0.5 bg-white hover:bg-gray-300 text-gray-800 font-semibold py-1 px-3 border border-gray-400 rounded" on:click={() => goToReceiptInOrdersTab(assigned_receipt_note?.receipt_id)}>Open</button>-->
         <button on:click={() => resolve(assigned_receipt_note?.receipt_id)} class="transition-all bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-1 px-3 border border-blue-500 hover:border-transparent rounded">
             Resolve
         </button>
+        <button class="transition-all mx-0.5 bg-white hover:bg-gray-300 text-gray-800 font-semibold py-1 px-3 border border-gray-400 rounded" on:click={handleOpenInModal}>Open</button>
         <div class="ml-2 flex flex-col align-middle justify-between items-center text-xs font-light space-x-4">
             {#if assigned_receipt_note?.created_by}
                 <p>Created by {assigned_receipt_note?.created_by}</p>

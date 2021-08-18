@@ -1,9 +1,16 @@
 <script>
-    import {push} from 'svelte-spa-router';
+    // import {push} from 'svelte-spa-router';
     import {onMount} from 'svelte';
     import MyModal, {getModal} from '../../../lib/MyModal.svelte';
     import checkSameAddressSameNameService from '../../../services/check_same_address_same_name.service';
+    import {createEventDispatcher} from 'svelte';
+    const dispatch = createEventDispatcher();
+    import {setContext} from 'svelte';
+
+    export let isInModal = false;
     export let receipt = {};
+    setContext('isInModal', isInModal);
+
     import {toasts} from "../../../stores/toast.store";
     import Success from "../../../components/Success.svelte";
     import Danger from '../../../components/Danger.svelte';
@@ -15,6 +22,11 @@
     import print from 'print-js';
     import shipmentsService from '../../../services/shipments.service';
     import Icon from '@iconify/svelte';
+    import dayjs from "dayjs";
+    import relativeTime from 'dayjs/plugin/relativeTime';
+    // import SelectedReceipt from "./SelectedReceipt.svelte";
+
+    dayjs.extend(relativeTime);
 
     let isLabelLoading = false;
     let possibleSameNameSameAddressOrders = [];
@@ -23,14 +35,15 @@
     let labelStatus = 'No label'
 
     onMount(async () => {
+        isLoadingCheckSameAddressSameName = true;
         isStallionStatusLoading = true;
         await shipmentsService.getStallionLabelStatusByOrderId(receipt?.receipt_id)
             .then(res => {
                 if (res?.status === 200) {
                     labelStatus = res?.data ? res.data : "No label"
-                    console.log(res?.data)
-                    console.log(labelStatus)
-                    toasts.push(Info, 4000, {message: `Label found for ${receipt?.name} with the ${receipt?.receipt_id} order id.`})
+                    // console.log(res?.data)
+                    // console.log(labelStatus)
+                    // toasts.push(Info, 4000, {message: `Label found for ${receipt?.name} with the ${receipt?.receipt_id} order id.`})
                 } else if (res?.response?.status === 404) {
                     toasts.push(Danger, 3500, {message: res?.response?.data?.detail})
                 }
@@ -39,7 +52,7 @@
                 toasts.push(Danger, 3500, {message: err})
             })
         isStallionStatusLoading = false;
-        isLoadingCheckSameAddressSameName = true;
+
         await checkSameAddressSameNameService.checkSameAddressSameName({
             receipt_id_to_exclude: receipt?.receipt_id,
             name: receipt?.name,
@@ -94,17 +107,60 @@
     }
 </script>
 
+<!--{}-->
+<!--{receipt}-->
+<!--{#if receipt}-->
+<!--    <MyModal size="large" id="transactions_display_from_selected_receipt">-->
+<!--        <div slot="header">-->
+<!--            Transactions-->
+<!--        </div>-->
+<!--        <div slot="body" class="">-->
+<!--            <TransactionList transactions={receipt?.Transactions}/>-->
+<!--        </div>-->
+<!--        <div slot="footer">-->
+<!--            <div class="flex justify-between">-->
+<!--                <button on:click={() => getModal('transactions_display_from_selected_receipt').close()} type="button" class="block px-4 py-2 text-white transition duration-100 ease-in-out bg-blue-500 border border-transparent rounded shadow-sm hover:bg-blue-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:ring-opacity-50  disabled:opacity-50 disabled:cursor-not-allowed">Cancel</button>-->
+<!--                <button on:click={() => getModal('transactions_display_from_selected_receipt').close()} type="button" class="block px-4 py-2 text-white transition duration-100 ease-in-out bg-blue-500 border border-transparent rounded shadow-sm hover:bg-blue-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:ring-opacity-50  disabled:opacity-50 disabled:cursor-not-allowed">Ok</button>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </MyModal>-->
+<!--{/if}-->
+
+<MyModal id="address_display_selected_receipt">
+    <div slot="header">
+        Recipient name, address and email
+    </div>
+    <div slot="body" class="">
+        {#if typeof receipt?.formatted_address === "string" }
+            {#each receipt?.formatted_address?.split("\n") as l}
+                <p class="text-lg">{l}</p>
+            {/each}
+            <p>{receipt?.buyer_email}</p>
+        {/if}
+    </div>
+    <div slot="footer">
+        <div class="flex justify-between">
+            <button on:click={() => getModal('address_display_selected_receipt').close()} type="button" class="block px-4 py-2 text-white transition duration-100 ease-in-out bg-blue-500 border border-transparent rounded shadow-sm hover:bg-blue-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:ring-opacity-50  disabled:opacity-50 disabled:cursor-not-allowed">Cancel</button>
+            <button on:click={() => getModal('address_display_selected_receipt').close()} type="button" class="block px-4 py-2 text-white transition duration-100 ease-in-out bg-blue-500 border border-transparent rounded shadow-sm hover:bg-blue-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:ring-opacity-50  disabled:opacity-50 disabled:cursor-not-allowed">Ok</button>
+        </div>
+    </div>
+</MyModal>
+
 <MyModal id="same_address_same_name">
     <div slot="header">
-        Same Address Same Name Orders
+        Orders with the same address and name
     </div>
     <div slot="body">
         {#if possibleSameNameSameAddressOrders.length === 0}
-            <p>No order found with the same address and same name.</p>
+            <p>No order found with the same address and name</p>
         {:else}
             <ul class="my-1 py-1">
-                {#each possibleSameNameSameAddressOrders as sameNameSameOrder}
-                    <li class="underline italic font-semibold">{sameNameSameOrder.receipt_id}</li>
+                {#each possibleSameNameSameAddressOrders as sameNameSameOrder (sameNameSameOrder.receipt_id)}
+                    <li class="border-b-2 border-black">
+                        <p class="underline italic font-semibold">{sameNameSameOrder.receipt_id}</p>
+                        <p class="text-sm font-light">{dayjs(sameNameSameOrder?.max_due_date).format("MMM DD, YYYY (ddd)")}</p>
+                        <p class="text-xs font-light">{dayjs(sameNameSameOrder?.max_due_date).add(17, "h").fromNow()}</p>
+                    </li>
                 {/each}
             </ul>
         {/if}
@@ -153,7 +209,7 @@
 <!--    <div class="w-full font-mono p-1.5">-->
         <div class="flex w-full justify-between p-2 h-1/4 ">
             <!-- TOP PART -->
-            <div class="w-1/3">
+            <div class="w-2/5">
                 <div class="flex flex-row justify-between align-middle">
                     <p class="text-md font-semibold">{receipt?.receipt_id}</p>
                     {#if isStallionStatusLoading}
@@ -163,6 +219,8 @@
                             <p class=" self-center text-sm font-light mr-1">{labelStatus}</p>
                             {#if labelStatus === "Ready"}
                                 <Icon class=" self-center" icon="mdi:cube-outline" align="center" color="green"  width="20" height="20" />
+                            {:else if labelStatus === "Processing"}
+                                <Icon class="self-center" icon="mdi:marker-check"  align="center" color="cyan"  width="20" height="20"/>
                             {:else if labelStatus === "In Transit"}
                                 <Icon class="self-center" icon="mdi:cube-send" align="center" color="purple"  width="20" height="20" />
                             {:else if labelStatus === "Delivered"}
@@ -219,7 +277,7 @@
                 </div>
 
             </div>
-            <div class="w-1/3 space-y-1">
+            <div class="w-1/5 space-y-1 text-sm" on:click={() => getModal('address_display_selected_receipt').open()}>
                 {#each receipt?.formatted_address?.split("\n") as l}
                     <p>{l}</p>
                 {/each}
@@ -230,13 +288,13 @@
     <!--            <p>{receipt?.city?.toUpperCase()}, {receipt?.state?.toUpperCase()} {receipt?.zip?.toUpperCase()}</p>-->
                 <p>{receipt?.buyer_email}</p>
             </div>
-            <div class="w-1/3">
+            <div class="w-1/2">
                 {#key receipt?.receipt_id}
                     <ReceiptNote receipt_id={receipt?.receipt_id}/>
                 {/key}
             </div>
         </div>
-        <div class="w-full h-3/4">
+        <div class="w-full h-3/4" ><!--on:click={() => getModal('transactions_display_from_selected_receipt').open()}-->
             <!-- TRANSACTIONS GO HERE -->
             <TransactionList transactions={receipt?.Transactions}/>
         </div>
@@ -249,3 +307,9 @@
         </div>
     </div>
 {/if}
+
+<style>
+    .w-45 {
+        width: 45%;
+    }
+</style>

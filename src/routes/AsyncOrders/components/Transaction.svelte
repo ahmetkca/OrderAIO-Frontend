@@ -21,7 +21,7 @@
 <div class="flex w-full font-mono mb-3 shadow-md rounded-lg border border-gray-200 bg-white" >
     <div class=" w-1/3 p-1">
         <div>
-            <img on:click={handleImageClick} in:blur class="w-48 h-48 object-left mx-auto" src={transaction?.MainImage?.url_170x135} alt="{transaction?.transaction_id}'s listing image"/>
+            <img on:click|self|stopPropagation={handleImageClick} in:blur class="w-48 h-48 object-left mx-auto" src={transaction?.MainImage?.url_170x135} alt="{transaction?.transaction_id}'s listing image"/>
 
         </div>
     </div>

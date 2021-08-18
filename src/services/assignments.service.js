@@ -4,7 +4,7 @@ const axios = config.myAxios;
 
 export default {
     async getAllAssignedNotes() {
-        return await axios.get(`/assignments`)
+        return await axios.get(`/assignments/`)
             .then(res => {
                 return res;
             }).catch(err => {

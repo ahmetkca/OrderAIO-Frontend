@@ -165,6 +165,11 @@
         //
         // },250);
     }
+
+    const handleReloadFilter = async () => {
+        await search($filter);
+    }
+
 </script>
 
 {#if isSearching}
@@ -238,7 +243,7 @@
         </form>
     </div>
 </Modal>
-<div class="container mx-auto px-5">
+<div class="w-full xl:container xl:mx-auto xl:px-5 px-1">
     <div class="flex flex-col ">
         <div class="flex flex-row ">
 <!--            <div class="p-2 overflow-y-auto">-->
@@ -247,9 +252,11 @@
                     bind:searchData={searchData}
                     on:selectedReceipt={handleSelectedReceipt}
                     on:openModal={handleOpenModal}
-                    on:notInCurrentData={handleNotInCurrentData}/>
+                    on:notInCurrentData={handleNotInCurrentData}
+                    on:reloadFilter={handleReloadFilter}
+            />
 <!--            </div>-->
-            <div class="px-2 w-3/4 ml-1 bg-gray-50">
+            <div class="px-2 w-full ml-1 bg-gray-50">
 
                 {#if isSearching}
                     <SelectedReceiptSkeleton />
