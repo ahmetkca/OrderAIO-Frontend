@@ -81,12 +81,17 @@
             await receiptLabelPrintService.getLabelPdfByReceiptId(receipt?.receipt_id)
                 .then(res => {
                     if (res?.response?.status === 404 && res?.response?.statusText === "Not Found") {
-                        toasts.push(Warning, 3500, {message: `No Label found for ${receipt?.receipt_id}.`});
+                        console.log(res?.response?.data)
+                        const enc = new TextDecoder("utf-8");
+                        const detail_json = JSON.parse(enc.decode(res?.response?.data));
+                        // `No Label found for ${receipt?.receipt_id}.`
+                        toasts.push(Warning, 3500, {message: detail_json.detail});
                     } else if (res?.status === 200 && res?.statusText === "OK") {
 
                         const myblob = new Blob([res?.data], {type: 'application/pdf'});
+                        const labelPdfUrl = window.URL.createObjectURL(myblob);
                         print({
-                            printable: window.URL.createObjectURL(myblob),
+                            printable: labelPdfUrl,
                             type: 'pdf',
                             showModal: true,
                             modalMessage: "Label Loading...",
@@ -264,7 +269,7 @@
                         {/if}
                     </button>
                 </div>
-                <div class="flex flex-col" on:click={() => getModal('gift_and_note').open()}>
+                <div class="flex flex-col max-w-sm" on:click={() => getModal('gift_and_note').open()}>
                     <p><span class="underline">Gift:</span> {#if receipt?.is_gift}<span style="color: rgba(52, 211, 153, 1);"><i class="fas fa-check-circle"></i></span>{:else}<span style="color: rgba(248, 113, 113, 1);"><i class="fas fa-times-circle"></i></span>{/if}</p>
                     {#if receipt?.is_gift}
                         <p class="px-1 py-0.5 truncate text-xm font-light">{receipt?.gift_message}</p>
@@ -279,14 +284,14 @@
             </div>
             <div class="w-1/5 space-y-1 text-sm" on:click={() => getModal('address_display_selected_receipt').open()}>
                 {#each receipt?.formatted_address?.split("\n") as l}
-                    <p>{l}</p>
+                    <p class="truncate">{l}</p>
                 {/each}
                 <!--{#each receipt?.formatted_address}-->
     <!--            <p class="text-base">{receipt?.name}</p>-->
     <!--            <p>{#if receipt?.first_line?.length > 0}{receipt?.first_line.toUpperCase()}{/if}</p>-->
     <!--            <p>{#if receipt?.second_line?.length > 0}{receipt?.second_line.toUpperCase()}{/if}</p>-->
     <!--            <p>{receipt?.city?.toUpperCase()}, {receipt?.state?.toUpperCase()} {receipt?.zip?.toUpperCase()}</p>-->
-                <p>{receipt?.buyer_email}</p>
+                <p class="truncate">{receipt?.buyer_email}</p>
             </div>
             <div class="w-1/2">
                 {#key receipt?.receipt_id}
