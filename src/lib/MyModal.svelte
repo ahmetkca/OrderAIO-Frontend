@@ -19,6 +19,7 @@
         // console.trace(typeof callback)
         // console.trace(callback)
         if (callback) {
+            // console.log('waiting for callback')
             await callback();
         }
         isHidden = true;

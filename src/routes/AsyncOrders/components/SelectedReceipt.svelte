@@ -269,7 +269,7 @@
                         {/if}
                     </button>
                 </div>
-                <div class="flex flex-col max-w-sm" on:click={() => getModal('gift_and_note').open()}>
+                <div class="flex flex-col max-w-sm select-none" on:click={() => getModal('gift_and_note').open()}>
                     <p><span class="underline">Gift:</span> {#if receipt?.is_gift}<span style="color: rgba(52, 211, 153, 1);"><i class="fas fa-check-circle"></i></span>{:else}<span style="color: rgba(248, 113, 113, 1);"><i class="fas fa-times-circle"></i></span>{/if}</p>
                     {#if receipt?.is_gift}
                         <p class="px-1 py-0.5 truncate text-xm font-light">{receipt?.gift_message}</p>
@@ -282,7 +282,7 @@
                 </div>
 
             </div>
-            <div class="w-1/5 space-y-1 text-sm" on:click={() => getModal('address_display_selected_receipt').open()}>
+            <div class="w-1/5 space-y-1 text-sm select-none" on:click={() => getModal('address_display_selected_receipt').open()}>
                 {#each receipt?.formatted_address?.split("\n") as l}
                     <p class="truncate">{l}</p>
                 {/each}

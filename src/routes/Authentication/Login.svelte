@@ -10,6 +10,7 @@
 	import Success from "../../components/Success.svelte";
 	import Danger from '../../components/Danger.svelte';
 	import Warning from '../../components/Warning.svelte';
+	import {users} from "../../stores/users.store";
 
 
 	let username;
@@ -58,16 +59,17 @@
 									if ($oauth2_user?.user.length > 0 && $oauth2_user?.user_id.length > 0) {
 										isAuthenticated.set(true);
 									}
-									if ($isAuthenticated) {
-										toasts.push(Success, 3500, {message: "Successfully logged in."});
-										push('/connections')
-									} else {
-										toasts.push(Danger, 3500, {message: "Something went wrong! Try again later."});
-									}
 								}
 
 								isSubmitting = false;
 							})
+					if ($isAuthenticated) {
+						// await users.reload()
+						toasts.push(Success, 3500, {message: "Successfully logged in."});
+						await push('/connections')
+					} else {
+						toasts.push(Danger, 3500, {message: "Something went wrong! Try again later."});
+					}
 				} else {
 					toasts.push(Danger, 3500, {message: "Something went wrong! Try again later."});
 				}

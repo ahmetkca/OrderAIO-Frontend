@@ -27,6 +27,8 @@
     })
 
     const reloadAllAssignments = async () => {
+        assigned_notes = []
+        filteredData = []
         await assignmentsService.getAllAssignedNotes()
             .then(res => {
                 if (res?.status === 200) {

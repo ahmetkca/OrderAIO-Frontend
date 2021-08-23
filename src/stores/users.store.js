@@ -2,11 +2,15 @@ import { writable } from 'svelte/store';
 import usersService from "../services/users.service";
 
 const reloadUsers = async () => {
+    let myUsers = [];
     await usersService.getAllUsers()
         .then(res => {
-            console.trace(res.data)
-            return res.data
+            myUsers = res.data
+
+            // return res.data
         })
+    console.trace(myUsers);
+    return myUsers;
 }
 
 const createUsersStore = () => {
@@ -19,7 +23,7 @@ const createUsersStore = () => {
         set,
         update,
         reload: async () => set(await reloadUsers()),
-        reset: () => set({})
+        reset: () => set([])
     }
 }
 export const users = createUsersStore();

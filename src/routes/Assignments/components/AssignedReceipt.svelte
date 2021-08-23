@@ -10,7 +10,7 @@
 
     import SelectedReceipt from "../../AsyncOrders/components/SelectedReceipt.svelte";
     import searchService from "../../../services/search.service";
-    import {user} from "../../../stores/user.store";
+    import {oauth2_user} from "../../../stores/user.store";
 
 
     const dispatch = createEventDispatcher();
@@ -40,7 +40,8 @@
     }
 
     const resolve = async (receipt_id) => {
-        note = `RESOLVED by ${$user?.username}.\n${note}`;
+        console.log($oauth2_user)
+        note = `RESOLVED by ${$oauth2_user?.user}.\n${note}`;
         await receiptNoteService.updateNote(Object.assign({},
             {receipt_id},
             {status: 'UNCOMPLETED'},
@@ -128,9 +129,7 @@
 
 </script>
 
-
-
-
+<!--{JSON.stringify($oauth2_user)}-->
 <div class="border border-gray-200 rounded bg-gray-50 px-2 mb-1">
     <div class="mx-0.5 flex flex-row">
         <p class="w-1/2 text-lg sm:text-sm md:text-base sm:font-light font-semibold">{assigned_receipt_note?.receipt_id}</p>

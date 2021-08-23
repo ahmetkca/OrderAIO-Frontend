@@ -49,13 +49,13 @@
             })
         if ($isAuthenticated) {
             await etsyConnections.reload();
-            await usersService.getAllUsers()
-                .then(res => {
-                    console.trace(res.data)
-                    users.set(res.data);
-                    // return res.data
-                })
-            // await users.reload()
+            // await usersService.getAllUsers()
+            //     .then(res => {
+            //         console.trace(res.data)
+            //         users.set(res.data);
+            //         // return res.data
+            //     })
+            await users.reload()
             await push('/connections')
             // if (!$isFetchingEtsyConnections) {
             //     await etsyConnections.reload();

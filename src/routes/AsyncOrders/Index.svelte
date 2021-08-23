@@ -1,5 +1,5 @@
 <script>
-    import {push, querystring} from 'svelte-spa-router';
+    import {querystring} from 'svelte-spa-router';
     import ResultList from './components/ResultList.svelte';
     import searchService from '../../services/search.service';
     import {orders} from "../../stores/orders.store";
@@ -15,8 +15,12 @@
     import SelectedReceiptSkeleton from './components/SelectedReceiptSkeleton.svelte';
     import receiptNoteService from '../../services/receiptNote.service';
     import {toasts} from "../../stores/toast.store";
-    import Warning from "../../components/Warning.svelte";
+    // import Warning from "../../components/Warning.svelte";
     import Danger from '../../components/Danger.svelte';
+    import {users} from "../../stores/users.store";
+    // import usersService from "../../services/users.service";
+    import {scale} from 'svelte/transition';
+    import {quintOut} from 'svelte/easing';
 
     let group = 0;
 
@@ -34,6 +38,10 @@
     let filterToDate = $filter?.to_date;
 
     onMount(async () => {
+        // console.log($users)
+        if ($users?.length === 0) {
+            await users.reload()
+        }
         const myQuerystring = new URLSearchParams($querystring);
         if (myQuerystring.has('query')) {
             await search({query: myQuerystring.get('query')});
@@ -262,7 +270,10 @@
                     <SelectedReceiptSkeleton />
                 {:else}
                     {#key receipt?.receipt_id}
-                        <SelectedReceipt {receipt}/>
+                        <div in:scale={{ delay: 100, duration: 300, easing: quintOut }}>
+                            <SelectedReceipt {receipt}/>
+                        </div>
+
                     {/key}
                 {/if}
             </div>
