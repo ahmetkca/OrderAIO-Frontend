@@ -10,8 +10,8 @@ export default ({ mode }) => {
       server: {
         open: true,
         https: {
-          key: fs.readFileSync('./localhost-key.pem'),
-          cert: fs.readFileSync('./localhost.pem')
+          key: fs.readFileSync('./localhost.key'),
+          cert: fs.readFileSync('./localhost.crt')
         }
       }
     }

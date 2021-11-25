@@ -6,6 +6,7 @@
     import dayjs from "dayjs";
     import relativeTime from 'dayjs/plugin/relativeTime';
     import {orders} from "../../../stores/orders.store";
+    import Icon from '@iconify/svelte';
     // import receiptNoteService from "../../../services/receiptNote.service";
 
     // import receiptNoteService from '../../../services/receiptNote.service';
@@ -142,20 +143,33 @@
         <!--{filteredData[index]?.status}-->
 <!--        <span title="{JSON.stringify(filteredData)}">asdasd</span>-->
         <div in:fade class={group === index ? "relative border-2 border-blue-300 pt-2 pb-2 pr-2 card mx-2 mt-0 mb-1 whitespace-nowrap bg-gray-50" : "bg-gray-50 border border-gray-200 pt-2 pb-2 pr-2 card mx-2 mt-0 mb-1 whitespace-nowrap"}>
+            
             {#if filteredData[index].status === undefined}
-                <div class="absolute -top-2.5 -left-1.5 w-4 h-4 animate-bounce ">
+                <div class="opacity-75 absolute -top-2.5 -left-1.5 w-4 h-4 animate-bounce ">
                     <i class="fas fa-spinner fa-pulse"></i>
                 </div>
             {:else if filteredData[index].status === "COMPLETED"}
-                <div class="absolute -top-2.5 -left-1.5 w-4 h-4 animate-bounce ">
+                <div class="opacity-75 absolute -top-2.5 -left-1.5 w-4 h-4 animate-bounce ">
                     <i style="color: green; font-size: 24px;" class="fas fas fa-check"></i>
                 </div>
             {:else if filteredData[index].status === "PROBLEM"}
-                <div class="absolute -top-2.5 -left-1.5 w-4 h-4 animate-bounce ">
+                <div class="opacity-75 absolute -top-2.5 -left-1.5 w-4 h-4 animate-bounce ">
                     <i style="color: #FF6405; font-size: 24px;" class="fas fa-exclamation-circle"></i>
                 </div>
+            {:else if filteredData[index].status === "HOLD"}
+                <div class="opacity-75 absolute -top-2.5 -left-1.5 w-4 h-4 animate-bounce ">
+                    <i style="color: #FF6405; font-size: 24px;" class="fas fa-pause-circle"></i>
+                </div>
+            {:else if filteredData[index].status === "SENT"}
+                <div class="opacity-75 absolute -top-2.5 -left-1.5 w-4 h-4 animate-bounce ">
+                    <Icon class="self-center" icon="mdi:cube-send" align="center" color="purple"  width="20" height="20" />
+                </div>
+            {:else if filteredData[index].status === "NOTSEEN"}
+                <div class="opacity-75 absolute -top-2.5 -left-1.5 w-4 h-4 animate-bounce ">
+                    <i style="color: red; font-size: 24px;" class="fas fa-store-slash"></i>
+                </div>
             {:else}
-                <div class="absolute -top-2.5 -left-1.5 w-4 h-4 animate-bounce">
+                <div class="opacity-75 absolute -top-2.5 -left-1.5 w-4 h-4 animate-bounce ">
                     <i style="color: red; font-size: 24px;" class="fas fa-times"></i>
                 </div>
             {/if}

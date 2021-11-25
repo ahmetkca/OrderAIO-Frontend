@@ -5,6 +5,7 @@
     import dayjs from "dayjs";
     import relativeTime from 'dayjs/plugin/relativeTime';
     import LocalizedFormat from 'dayjs/plugin/localizedFormat'
+    import Icon from '@iconify/svelte';
 
     dayjs.extend(relativeTime);
     dayjs.extend(LocalizedFormat);
@@ -39,10 +40,10 @@
     })
     const updateOrCreateNote = async (statusx) => {
         buttonClicked = true;
-        if (assigned_to !== 'nobody' && assigned_to !== null) {
-            console.log(assigned_to);
-            statusx = 'PROBLEM'
-        }
+        // if (assigned_to !== 'nobody' && assigned_to !== null) {
+        //     console.log(assigned_to);
+        //     statusx = 'PROBLEM'
+        // }
         // console.log(assigned_to);
         if (doesExists) {
             console.log("UPDATE")
@@ -181,6 +182,13 @@
                 <i style="color: green; font-size: 24px;" class="fas fas fa-check"></i>
             {:else if status === "PROBLEM"}
                 <i style="color: #FF6405; font-size: 24px;" class="fas fa-exclamation-circle"></i>
+            {:else if status === "HOLD"}
+                <i style="color: #FF6405; font-size: 24px;" class="fas fa-pause-circle"></i>
+            {:else if status === "SENT"}
+                <Icon class="self-center" icon="mdi:cube-send" align="center" color="purple"  width="20" height="20" />
+                <!-- <i style="color: #25BE7B; font-size: 24px;" class="fas fa-store-alt"></i> -->
+            {:else if status === "NOTSEEN"}
+                <i style="color: red; font-size: 24px;" class="fas fa-store-slash"></i>
             {:else if status === "UNCOMPLETED" || doesExists === false}
                 <i style="color: red; font-size: 24px;" class="fas fa-times"></i>
             {/if}
@@ -197,13 +205,17 @@
             <button disabled={buttonClicked} class:opacity-50={buttonClicked} on:click={() => updateOrCreateNote("COMPLETED")} class="bg-green-600 hover:bg-green-700 text-white font-bold py-1 px-2 rounded-l">
                 Complete {#if buttonClicked}<i class="fas fa-spinner fa-pulse"></i>{:else}<i class="fas fa-check"></i>{/if}
             </button>
-            <button disabled={buttonClicked} class:opacity-50={buttonClicked} on:click={() => updateOrCreateNote("UNCOMPLETED")} class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-l-0 border-gray-400 rounded-r">
-                {#if buttonClicked}
-                    <i class="fas fa-spinner fa-pulse"></i>
-                {:else}
-                    <i class="fas fa-times"></i>
-                {/if}
-
+            <button disabled={buttonClicked} class:opacity-50={buttonClicked} on:click={() => updateOrCreateNote("PROBLEM")} class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-l-0 border-gray-400 ">
+                {#if buttonClicked}<i class="fas fa-spinner fa-pulse"></i>{:else}<i class="fas fa-exclamation-circle"></i>{/if}
+            </button>
+            <button disabled={buttonClicked} class:opacity-50={buttonClicked} on:click={() => updateOrCreateNote("UNCOMPLETED")} class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-l-0 border-gray-400 ">
+                {#if buttonClicked}<i class="fas fa-spinner fa-pulse"></i>{:else}<i class="fas fa-times"></i>{/if}
+            </button>
+            <button disabled={buttonClicked} class:opacity-50={buttonClicked} on:click={() => updateOrCreateNote("SENT")} class=" bg-white hover:bg-gray-100 text-gray-600 font-semibold py-1 px-2 border border-l-0 border-gray-300 ">
+                Send {#if buttonClicked}<i class="fas fa-spinner fa-pulse"></i>{:else}<i class="fas fa-paper-plane"></i>{/if}
+            </button>
+            <button disabled={buttonClicked} class:opacity-50={buttonClicked} on:click={() => updateOrCreateNote("HOLD")} class=" bg-white hover:bg-gray-100 text-gray-600 font-semibold py-1 px-2 border border-l-0 border-gray-300 rounded-r">
+                Hold {#if buttonClicked}<i class="fas fa-spinner fa-pulse"></i>{:else}<i class="fas fa-pause-circle"></i>{/if}
             </button>
         </div>
         <div class="flex flex-col space-y-1 items-end align-middle font-light">
@@ -213,7 +225,7 @@
                 <p title="{dayjs(created_at).format('LLLL')} ({dayjs(created_at).fromNow()})" class="text-xs align-middle">Completed by {created_by || updated_by}</p>
             {:else if status === "UNCOMPLETED" || doesExists === false}
                 {#if (typeof created_by === "string" && created_by.length > 0)}
-                    <p itle="{dayjs(created_at).format('LLLL')} ({dayjs(created_at).fromNow()})" class="text-xs align-middle">Seen by {created_by || updated_by}</p>
+                    <p title="{dayjs(created_at).format('LLLL')} ({dayjs(created_at).fromNow()})" class="text-xs align-middle">Seen by {created_by || updated_by}</p>
                 {/if}
             {/if}
             <!--{(typeof  updated_by)}-->

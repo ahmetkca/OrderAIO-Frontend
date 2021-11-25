@@ -4,4 +4,7 @@
 .DS_Store
 localhost.pem
 localhost-key.pem
+localhost.crt
+localhost.key
 .env.local
+.env
