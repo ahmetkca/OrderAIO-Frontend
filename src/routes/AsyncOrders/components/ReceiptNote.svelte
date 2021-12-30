@@ -215,7 +215,7 @@
                 Send {#if buttonClicked}<i class="fas fa-spinner fa-pulse"></i>{:else}<i class="fas fa-paper-plane"></i>{/if}
             </button>
             <button disabled={buttonClicked} class:opacity-50={buttonClicked} on:click={() => updateOrCreateNote("HOLD")} class=" bg-white hover:bg-gray-100 text-gray-600 font-semibold py-1 px-2 border border-l-0 border-gray-300 rounded-r">
-                Hold {#if buttonClicked}<i class="fas fa-spinner fa-pulse"></i>{:else}<i class="fas fa-pause-circle"></i>{/if}
+                Received {#if buttonClicked}<i class="fas fa-spinner fa-pulse"></i>{:else}<i class="fas fa-pause-circle"></i>{/if}
             </button>
         </div>
         <div class="flex flex-col space-y-1 items-end align-middle font-light">
