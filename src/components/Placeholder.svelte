@@ -4,6 +4,6 @@
     }
 </style>
 
-<div class="placeholder-div flex h-screen justify-center items-center">
-    <img class="mx-auto " src="/placeholder.png" alt="placeholder" />
+<div class="placeholder-div ">
+    <img class="mx-auto pt-24" src="/placeholder.png" alt="placeholder" />
 </div>
