@@ -5,5 +5,5 @@
 </style>
 
 <div class="placeholder-div ">
-    <img class="mx-auto pt-14" src="/placeholder.png" alt="placeholder" />
+    <img class="mx-auto pt-8" src="/placeholder.png" alt="placeholder" />
 </div>
