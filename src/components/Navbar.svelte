@@ -79,3 +79,9 @@
 
     </div>
 </header>
+
+<style>
+    .my-bg {
+        background-color: rgb(37, 47, 73);
+    }
+</style>

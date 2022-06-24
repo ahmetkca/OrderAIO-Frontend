@@ -5,6 +5,7 @@
     import Navbar from './components/Navbar.svelte';
     import Router, {push, location} from 'svelte-spa-router';
     import {publicRoutes, routes} from './routes/routes';
+    import Placeholder from './components/Placeholder.svelte';
     import {isAuthenticated} from "./stores/user.store";
     // import {socket} from "./stores/socket.io.store";
     // import {
@@ -72,9 +73,11 @@
 
 <ToastContainer />
 <main class="min-h-screen max-h-screen font-mono">
-    <Navbar />
+    
+    <Placeholder/>
     <Router routes={publicRoutes} />
     {#if $isAuthenticated}
+        <Navbar />
         <Router {routes} />
     {/if}
 </main>
